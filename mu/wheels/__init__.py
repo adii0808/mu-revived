@@ -3,6 +3,7 @@
 #
 import os
 import sys
+import platform
 import glob
 import logging
 import subprocess
@@ -37,23 +38,19 @@ ZIP_FILEPATH = os.path.join(WHEELS_DIRPATH, mu_version + ".zip")
 # Any additional elements are passed to `pip` for specific purposes
 #
 mode_packages = [
-    # pygame is a pgzero dependency, but there is currently an issue where
-    # pygame versions >=2.1.3 have issues in macOS 10.x, so temporarily for
-    # Mu release 1.2.1 pin the max version here
-    # https://github.com/mu-editor/mu/issues/2423
-    ("pgzero", ("pgzero>=1.2.1", "pygame<2.1.3")),
-    # Lock Werkzeug to < 3.0.0: import flask fails, otherwise.
-    ("flask", ("flask==2.0.3", "Werkzeug<3.0.0")),
-    # The version of ipykernel here should match to the version used by
-    # qtconsole at the version specified in setup.py
-    # FIXME: ipykernel max ver added for macOS 10.13 compatibility, min taken
-    # from qtconsole 4.7.7. This is mirrored in setup.py
-    ("ipykernel", ("ipykernel>=4.1,<6",)),
-    # FIXME: ipykernel<6 depends on ipython_genutils, but it isn't explicitly
-    # declared as a dependency. It also depends on traitlets, which
-    # incidentally brought ipython_genutils, but in v5.1 it was dropped, so as
-    # a workaround we need to manually specify it here
-    ("ipython_genutils", ("ipython_genutils>=0.2.0",)),
+    # pygame (upstream) has no wheels for Python 3.13+, so use the actively
+    # maintained, import-compatible community edition. It still imports as
+    # ``import pygame``.
+    ("pygame", ("pygame-ce>=2.5.2",)),
+    # Pygame Zero declares a dependency on the ``pygame`` distribution name,
+    # which would drag in the unbuildable upstream package. Download it on
+    # its own; its runtime deps (pygame-ce, numpy) are provided separately.
+    ("numpy", ("numpy>=2.3",)),
+    ("pgzero", ("pgzero>=1.2.1",), "--no-deps"),
+    ("flask", ("flask>=3.1",)),
+    # Should track the ipykernel range that works with the qtconsole version
+    # declared in pyproject.toml.
+    ("ipykernel", ("ipykernel>=6.29",)),
 ]
 
 
@@ -66,12 +63,13 @@ def os_compatibility_flags():
     an issue to be resolved before doing a Mu release.
     """
     extra_flags = []
-    # For macOS the oldest supported version is 10.12 Sierra, as that's the
-    # oldest version supported by PyQt5 v5.13
+    # Qt 6.8+ (and therefore Mu) requires macOS 12 Monterey or newer, so
+    # target that as the oldest baseline for the wheels we bundle.
     if sys.platform == "darwin":
+        arch = "arm64" if platform.machine() == "arm64" else "x86_64"
         extra_flags.extend(
             [
-                "--platform=macosx_10_12_x86_64",
+                "--platform=macosx_12_0_%s" % arch,
                 "--only-binary=:all:",
             ]
         )

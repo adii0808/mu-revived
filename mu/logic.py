@@ -30,9 +30,9 @@ import locale
 import shutil
 
 import platformdirs
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5 import QtCore
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6 import QtCore
 from pyflakes.api import check
 from pycodestyle import StyleGuide, Checker
 
@@ -1119,7 +1119,7 @@ class Editor(QObject):
                     self._view.show_confirmation(
                         message, info, icon="Question"
                     )
-                    == QMessageBox.Ok
+                    == QMessageBox.StandardButton.Ok
                 ):
                     self.change_mode(file_mode)
             logger.debug(text)
@@ -1404,7 +1404,7 @@ class Editor(QObject):
                 " cause you to lose it."
             )
             result = self._view.show_confirmation(msg)
-            if result == QMessageBox.Cancel:
+            if result == QMessageBox.StandardButton.Cancel:
                 if args and hasattr(args[0], "ignore"):
                     # The function is handling an event, so ignore it.
                     args[0].ignore()
@@ -1654,7 +1654,7 @@ class Editor(QObject):
             change_confirmation = self._view.show_confirmation(
                 heading, msg_body, icon="Question"
             )
-            if change_confirmation == QMessageBox.Ok:
+            if change_confirmation == QMessageBox.StandardButton.Ok:
                 self.change_mode(new_mode)
 
     def device_changed(self, device):

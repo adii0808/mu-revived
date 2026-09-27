@@ -20,8 +20,8 @@ import os
 import logging
 import sys
 
-from PyQt5.QtCore import QSize, QProcess, QTimer, Qt
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QSize, QProcess, QTimer, Qt
+from PyQt6.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
     QGridLayout,
@@ -40,7 +40,7 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QComboBox,
 )
-from PyQt5.QtGui import QTextCursor
+from PyQt6.QtGui import QTextCursor
 from mu.resources import load_icon
 from mu.interface.widgets import DeviceSelector
 from ..virtual_environment import venv
@@ -105,7 +105,7 @@ class ModeSelector(QDialog):
         instructions.setWordWrap(True)
         widget_layout.addWidget(instructions)
         button_box = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -121,7 +121,7 @@ class ModeSelector(QDialog):
         """
         Return details of the newly selected mode.
         """
-        if self.result() == QDialog.Accepted:
+        if self.result() == QDialog.DialogCode.Accepted:
             return self.mode_list.currentItem().icon
         else:
             raise RuntimeError("Mode change cancelled.")
@@ -145,7 +145,7 @@ class LogWidget(QWidget):
         widget_layout.addWidget(label)
         self.log_text_area = QPlainTextEdit()
         self.log_text_area.setReadOnly(True)
-        self.log_text_area.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.log_text_area.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self.log_text_area.setPlainText(log)
         widget_layout.addWidget(self.log_text_area)
 
@@ -170,7 +170,7 @@ class EnvironmentVariablesWidget(QWidget):
         label.setWordWrap(True)
         widget_layout.addWidget(label)
         self.text_area = QPlainTextEdit()
-        self.text_area.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.text_area.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self.text_area.setPlainText(envars)
         widget_layout.addWidget(self.text_area)
 
@@ -214,7 +214,7 @@ class PackagesWidget(QWidget):
         widget_layout = QVBoxLayout()
         self.setLayout(widget_layout)
         self.text_area = QPlainTextEdit()
-        self.text_area.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.text_area.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         label = QLabel(
             _(
                 "The packages shown below will be available to "
@@ -383,8 +383,8 @@ class ESPFirmwareFlasherWidget(QWidget):
             # ">>> sys.implementation"
         )
         label = QLabel(instructions)
-        label.setTextFormat(Qt.RichText)
-        label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        label.setTextFormat(Qt.TextFormat.RichText)
+        label.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
         label.setOpenExternalLinks(True)
         label.setWordWrap(True)
         grp_instructions_vbox.addWidget(label)
@@ -488,15 +488,16 @@ class ESPFirmwareFlasherWidget(QWidget):
 
     def run_esptool(self):
         self.process = QProcess(self)
-        self.process.setProcessChannelMode(QProcess.MergedChannels)
+        self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
         self.process.readyReadStandardError.connect(self.read_process)
         self.process.readyReadStandardOutput.connect(self.read_process)
         self.process.finished.connect(self.esptool_finished)
-        self.process.error.connect(self.esptool_error)
+        self.process.errorOccurred.connect(self.esptool_error)
 
         command = self.commands.pop(0)
         self.log_text_area.appendPlainText(command + "\n")
-        self.process.start(command)
+        # Qt6 removed QProcess.start(str); startCommand() splits the string.
+        self.process.startCommand(command)
 
     def esptool_error(self, error_num):
         self.log_text_area.appendPlainText(
@@ -509,7 +510,7 @@ class ESPFirmwareFlasherWidget(QWidget):
         Called when the subprocess that executes 'esptool.py is finished.
         """
         # Exit if a command fails
-        if exitCode != 0 or exitStatus == QProcess.CrashExit:
+        if exitCode != 0 or exitStatus == QProcess.ExitStatus.CrashExit:
             self.log_text_area.appendPlainText("Error on flashing. Aborting.")
             return
         if self.commands:
@@ -536,9 +537,9 @@ class ESPFirmwareFlasherWidget(QWidget):
         Add data to the end of the text area.
         """
         cursor = self.log_text_area.textCursor()
-        cursor.movePosition(QTextCursor.End)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
         cursor.insertText(msg)
-        cursor.movePosition(QTextCursor.End)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
         self.log_text_area.setTextCursor(cursor)
 
     def firmware_path_changed(self):
@@ -575,7 +576,7 @@ class AdminDialog(QDialog):
         self.tabs = QTabWidget()
         widget_layout.addWidget(self.tabs)
         button_box = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -688,7 +689,7 @@ class FindReplaceDialog(QDialog):
         self.replace_all_flag.setChecked(replace_flag)
         widget_layout.addWidget(self.replace_all_flag)
         button_box = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -739,11 +740,11 @@ class PackageDialog(QDialog):
         # Text area for pip output.
         self.text_area = QPlainTextEdit()
         self.text_area.setReadOnly(True)
-        self.text_area.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.text_area.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         widget_layout.addWidget(self.text_area)
         # Buttons.
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok)
-        self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
+        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
         self.button_box.accepted.connect(self.accept)
         widget_layout.addWidget(self.button_box)
 
@@ -773,7 +774,7 @@ class PackageDialog(QDialog):
         Set the UI to a valid end state.
         """
         self.text_area.appendPlainText("\nFINISHED")
-        self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
 
     def run_pip(self, command, packages):
         """

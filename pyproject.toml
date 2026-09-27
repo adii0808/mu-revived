@@ -1,0 +1,112 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# NOTE: "mu-editor" is owned on PyPI by the original project. Pick a new
+# distribution name before publishing this fork.
+name = "mu-editor"
+dynamic = ["version"]
+description = "A simple Python editor for beginner programmers."
+readme = "README.rst"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Nicholas H.Tollervey", email = "ntoll@ntoll.org" }]
+requires-python = ">=3.10"
+dependencies = [
+    # --- GUI: Qt6 via PyQt6. QScintilla is only bound for PyQt, which is
+    # why Mu uses PyQt rather than PySide.
+    "PyQt6>=6.8",
+    "PyQt6-QScintilla>=2.14.1",
+    "PyQt6-Charts>=6.8",
+    # --- Python 3 mode REPL (Jupyter). qtconsole 5 speaks Qt6 via qtpy.
+    "qtconsole>=5.6",
+    "jupyter-client>=8",
+    "ipykernel>=6.29",
+    "pyzmq>=26",
+    # --- Device modes.
+    "adafruit-board-toolkit~=1.1",
+    "pyserial~=3.5",
+    "nudatus>=0.0.5",
+    # --- Code checking and tidying (pyflakes / pycodestyle are runtime deps).
+    "flake8>=7",
+    "black>=24",
+    # --- Everything else.
+    "platformdirs>=4",
+    "semver>=3",
+    "virtualenv>=20.26",
+    "wheel",
+    "requests>=2.31",
+    "pywin32; sys_platform == 'win32'",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: X11 Applications :: Qt",
+    "Environment :: MacOS X",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Education",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Embedded Systems",
+    "Topic :: Text Editors :: Integrated Development Environments (IDE)",
+]
+
+[project.urls]
+Source = "https://github.com/mu-editor/mu"
+
+[project.scripts]
+mu-editor = "mu.app:run"
+
+[project.optional-dependencies]
+tests = [
+    "pytest>=8",
+    "pytest-cov",
+    "pytest-random-order>=1.1",
+    "pytest-timeout",
+    "coverage",
+]
+docs = ["sphinx"]
+package = ["build", "twine"]
+i18n = ["babel"]
+utils = ["scrapy", "beautifulsoup4", "requests"]
+dev = ["mu-editor[tests,docs,package,i18n]"]
+
+[tool.setuptools]
+packages = [
+    "mu",
+    "mu.contrib",
+    "mu.resources",
+    "mu.modes",
+    "mu.debugger",
+    "mu.interface",
+    "mu.modes.api",
+    "mu.wheels",
+]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.package-data]
+"mu.wheels" = ["*.whl", "*.zip"]
+
+[tool.setuptools.dynamic]
+version = { attr = "mu.__version__" }
+
+[tool.black]
+line-length = 79
+target-version = ["py310"]
+extend-exclude = "mu/contrib|mu/modes/api|package|utils"
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::DeprecationWarning"]
+addopts = "--random-order"

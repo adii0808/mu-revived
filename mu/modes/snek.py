@@ -20,8 +20,8 @@ import logging
 from .base import MicroPythonMode, REPLConnection
 from .api import SNEK_APIS
 from mu.interface.panes import CHARTS
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QTimer
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QTimer
 
 logger = logging.getLogger(__name__)
 
@@ -457,7 +457,7 @@ class SnekMode(MicroPythonMode):
                 "There is un-saved work, 'get' will cause you " "to lose it."
             )
             window = target_tab.nativeParentWidget()
-            if window.show_confirmation(msg) == QMessageBox.Cancel:
+            if window.show_confirmation(msg) == QMessageBox.StandardButton.Cancel:
                 return
 
         command = ("eeprom.show(1)\n",)

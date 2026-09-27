@@ -389,48 +389,54 @@ class ESPLoader(object):
         if detect_port.serial_port.startswith("rfc2217:"):
             detect_port.USES_RFC2217 = True
         detect_port.connect(connect_mode, connect_attempts, detecting=True)
+        # Python 3.14 (PEP 765) forbids 'return' in 'finally'. The original
+        # code returned a detected chip even if detection then raised, and
+        # otherwise let the exception propagate; this preserves that.
         try:
-            print('Detecting chip type...', end='')
-            res = detect_port.check_command('get security info', ESPLoader.ESP_GET_SECURITY_INFO, b'')
-            res = struct.unpack("<IBBBBBBBBI", res[:16])  # 4b flags, 1b flash_crypt_cnt, 7*1b key_purposes, 4b chip_id
-            chip_id = res[9]  # 2/4 status bytes invariant
-
-            for cls in [ESP32S3BETA2ROM, ESP32S3ROM, ESP32C3ROM, ESP32C6BETAROM, ESP32H2BETA1ROM, ESP32C2ROM, ESP32H2BETA2ROM]:
-                if chip_id == cls.IMAGE_CHIP_ID:
-                    inst = cls(detect_port._port, baud, trace_enabled=trace_enabled)
-                    inst._post_connect()
-                    try:
-                        inst.read_reg(ESPLoader.CHIP_DETECT_MAGIC_REG_ADDR)  # Dummy read to check Secure Download mode
-                    except UnsupportedCommandError:
-                        inst.secure_download_mode = True
-        except (UnsupportedCommandError, struct.error, FatalError) as e:
-            # UnsupportedCmdErr: ESP8266/ESP32 ROM | struct.err: ESP32-S2 | FatalErr: ESP8266/ESP32 STUB
-            print(" Unsupported detection protocol, switching and trying again...")
             try:
-                # ESP32/ESP8266 are reset after an unsupported command, need to connect again (not needed on ESP32-S2)
-                if not isinstance(e, struct.error):
-                    detect_port.connect(connect_mode, connect_attempts, detecting=True, warnings=False)
                 print('Detecting chip type...', end='')
-                sys.stdout.flush()
-                chip_magic_value = detect_port.read_reg(ESPLoader.CHIP_DETECT_MAGIC_REG_ADDR)
+                res = detect_port.check_command('get security info', ESPLoader.ESP_GET_SECURITY_INFO, b'')
+                res = struct.unpack("<IBBBBBBBBI", res[:16])  # 4b flags, 1b flash_crypt_cnt, 7*1b key_purposes, 4b chip_id
+                chip_id = res[9]  # 2/4 status bytes invariant
 
-                for cls in [ESP8266ROM, ESP32ROM, ESP32S2ROM, ESP32S3BETA2ROM, ESP32S3ROM,
-                            ESP32C3ROM, ESP32C6BETAROM, ESP32H2BETA1ROM, ESP32C2ROM, ESP32H2BETA2ROM]:
-                    if chip_magic_value in cls.CHIP_DETECT_MAGIC_VALUE:
+                for cls in [ESP32S3BETA2ROM, ESP32S3ROM, ESP32C3ROM, ESP32C6BETAROM, ESP32H2BETA1ROM, ESP32C2ROM, ESP32H2BETA2ROM]:
+                    if chip_id == cls.IMAGE_CHIP_ID:
                         inst = cls(detect_port._port, baud, trace_enabled=trace_enabled)
                         inst._post_connect()
-                        inst.check_chip_id()
-            except UnsupportedCommandError:
-                raise FatalError("Unsupported Command Error received. Probably this means Secure Download Mode is enabled, "
-                                 "autodetection will not work. Need to manually specify the chip.")
-        finally:
-            if inst is not None:
-                print(' %s' % inst.CHIP_NAME, end='')
-                if detect_port.sync_stub_detected:
-                    inst = inst.STUB_CLASS(inst)
-                    inst.sync_stub_detected = True
-                print('')  # end line
-                return inst
+                        try:
+                            inst.read_reg(ESPLoader.CHIP_DETECT_MAGIC_REG_ADDR)  # Dummy read to check Secure Download mode
+                        except UnsupportedCommandError:
+                            inst.secure_download_mode = True
+            except (UnsupportedCommandError, struct.error, FatalError) as e:
+                # UnsupportedCmdErr: ESP8266/ESP32 ROM | struct.err: ESP32-S2 | FatalErr: ESP8266/ESP32 STUB
+                print(" Unsupported detection protocol, switching and trying again...")
+                try:
+                    # ESP32/ESP8266 are reset after an unsupported command, need to connect again (not needed on ESP32-S2)
+                    if not isinstance(e, struct.error):
+                        detect_port.connect(connect_mode, connect_attempts, detecting=True, warnings=False)
+                    print('Detecting chip type...', end='')
+                    sys.stdout.flush()
+                    chip_magic_value = detect_port.read_reg(ESPLoader.CHIP_DETECT_MAGIC_REG_ADDR)
+
+                    for cls in [ESP8266ROM, ESP32ROM, ESP32S2ROM, ESP32S3BETA2ROM, ESP32S3ROM,
+                                ESP32C3ROM, ESP32C6BETAROM, ESP32H2BETA1ROM, ESP32C2ROM, ESP32H2BETA2ROM]:
+                        if chip_magic_value in cls.CHIP_DETECT_MAGIC_VALUE:
+                            inst = cls(detect_port._port, baud, trace_enabled=trace_enabled)
+                            inst._post_connect()
+                            inst.check_chip_id()
+                except UnsupportedCommandError:
+                    raise FatalError("Unsupported Command Error received. Probably this means Secure Download Mode is enabled, "
+                                     "autodetection will not work. Need to manually specify the chip.")
+        except BaseException:
+            if inst is None:
+                raise
+        if inst is not None:
+            print(' %s' % inst.CHIP_NAME, end='')
+            if detect_port.sync_stub_detected:
+                inst = inst.STUB_CLASS(inst)
+                inst.sync_stub_detected = True
+            print('')  # end line
+            return inst
         raise FatalError("Unexpected CHIP magic value 0x%08x. Failed to autodetect chip type." % (chip_magic_value))
 
     """ Read a SLIP packet from the serial port """
@@ -4764,7 +4770,7 @@ def main(argv=None, esp=None):
 
     if PYTHON2:
         # This function is depreciated in Python3
-        operation_args = inspect.getargspec(operation_func).args
+        operation_args = inspect.getfullargspec(operation_func).args
     else:
         operation_args = inspect.getfullargspec(operation_func).args
 

@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
 
-from PyQt5.QtGui import QColor, QFontDatabase
+from PyQt6.QtGui import QColor, QFontDatabase
 from mu.resources import load_stylesheet, load_font_data
 
 
@@ -67,11 +67,13 @@ class Font:
         every time a font is referenced
         """
         if cls._DATABASE is None:
-            cls._DATABASE = QFontDatabase()
+            # In Qt6 QFontDatabase is a purely static API, so the class
+            # itself acts as the (process-wide) database.
             for variant in FONT_VARIANTS:
                 filename = FONT_FILENAME_PATTERN.format(variant=variant)
                 font_data = load_font_data(filename)
-                cls._DATABASE.addApplicationFontFromData(font_data)
+                QFontDatabase.addApplicationFontFromData(font_data)
+            cls._DATABASE = QFontDatabase
         return cls._DATABASE
 
     def load(self, size=DEFAULT_FONT_SIZE):

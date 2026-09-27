@@ -17,13 +17,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from pkg_resources import resource_filename, resource_string
-from PyQt5.QtGui import QPixmap, QIcon, QMovie
-from PyQt5.QtCore import QDir
+from importlib.resources import files
+from PyQt6.QtGui import QPixmap, QIcon, QMovie
+from PyQt6.QtCore import QDir
 import os
 
 
 # The following lines add the images and css directories to the search path.
+_RESOURCES = files(__name__)
+
+
+def resource_filename(package, resource):
+    """
+    Return a filesystem path to a resource bundled with Mu.
+
+    Replacement for the removed pkg_resources.resource_filename. Mu is always
+    installed as a regular (non-zipped) package so the traversable is a real
+    path on disk.
+    """
+    return str(_RESOURCES.joinpath(resource))
+
+
+def resource_string(package, resource):
+    """Return the bytes content of a bundled resource."""
+    return _RESOURCES.joinpath(resource).read_bytes()
+
+
 QDir.addSearchPath("images", resource_filename(__name__, "images"))
 QDir.addSearchPath("css", resource_filename(__name__, "css"))
 

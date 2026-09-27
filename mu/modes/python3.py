@@ -26,36 +26,35 @@ from mu.interface.panes import CHARTS
 from ..virtual_environment import venv
 from qtconsole.manager import QtKernelManager
 from qtconsole.client import QtKernelClient
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 
 logger = logging.getLogger(__name__)
 
 
 class MuKernelManager(QtKernelManager):
-    def start_kernel(self, **kw):
-        """Starts a kernel on this host in a separate process.
-
-        Subclassed to allow checking that the kernel uses the same Python as
-        Mu itself.
+    def format_kernel_cmd(self, extra_arguments=None):
         """
-        kernel_cmd, kw = self.pre_start_kernel(**kw)
-        cmd_interpreter = kernel_cmd[0]
-        if cmd_interpreter != venv.interpreter:
+        Build the command used to launch the kernel, forcing it to run with
+        the Python interpreter from Mu's virtual environment.
+
+        jupyter_client 7+ launches kernels through "provisioners", which call
+        this method to build the command line. Overriding it (rather than the
+        whole of start_kernel, as Mu did with jupyter_client < 6.2) keeps the
+        interpreter check while leaving process management to jupyter_client.
+        """
+        kernel_cmd = super().format_kernel_cmd(extra_arguments=extra_arguments)
+        if kernel_cmd and kernel_cmd[0] != venv.interpreter:
             self.log.debug(
                 "Wrong interpreter selected to run REPL: %s", kernel_cmd
             )
             self.log.debug(
                 "Using default interpreter to run REPL instead: %s",
-                cmd_interpreter,
+                venv.interpreter,
             )
-            cmd_interpreter = venv.interpreter
-            kernel_cmd[0] = cmd_interpreter
-
-        # launch the kernel subprocess
+            kernel_cmd[0] = venv.interpreter
         self.log.debug("Starting kernel: %s", kernel_cmd)
-        self.kernel = self._launch_kernel(kernel_cmd, **kw)
-        self.post_start_kernel(**kw)
+        return kernel_cmd
 
 
 class KernelRunner(QObject):

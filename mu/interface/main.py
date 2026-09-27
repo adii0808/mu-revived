@@ -19,11 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import logging
 import os.path
-from PyQt5.QtCore import QSize, Qt, pyqtSignal, QTimer, QThread
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QSize, Qt, pyqtSignal, QTimer, QThread
+from PyQt6.QtWidgets import (
     QToolBar,
-    QAction,
-    QDesktopWidget,
     QWidget,
     QVBoxLayout,
     QTabWidget,
@@ -33,14 +31,19 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QStatusBar,
     QDockWidget,
-    QShortcut,
     QApplication,
     QTabBar,
     QPushButton,
     QHBoxLayout,
     QProgressDialog,
 )
-from PyQt5.QtGui import QKeySequence, QStandardItemModel, QCursor
+from PyQt6.QtGui import (
+    QAction,
+    QCursor,
+    QKeySequence,
+    QShortcut,
+    QStandardItemModel,
+)
 from mu import __version__
 from mu.interface.dialogs import (
     ModeSelector,
@@ -85,8 +88,8 @@ class ButtonBar(QToolBar):
         super().__init__(parent)
         self.setMovable(False)
         self.setIconSize(QSize(64, 64))
-        self.setToolButtonStyle(3)
-        self.setContextMenuPolicy(Qt.PreventContextMenu)
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
         self.setObjectName("StandardToolBar")
         self.reset()
 
@@ -225,7 +228,7 @@ class FileTabs(QTabWidget):
                 "There is un-saved work, closing the tab will cause you "
                 "to lose it."
             )
-            if window.show_confirmation(msg) == QMessageBox.Cancel:
+            if window.show_confirmation(msg) == QMessageBox.StandardButton.Cancel:
                 return
         super(FileTabs, self).removeTab(tab_id)
 
@@ -290,7 +293,7 @@ class FileTabs(QTabWidget):
         container.setLayout(box)
         # Add the box, clearly it isn't a button but QTabBar actually takes
         # any QWidget not just buttons
-        self.tabBar().setTabButton(tab_id, QTabBar.RightSide, container)
+        self.tabBar().setTabButton(tab_id, QTabBar.ButtonPosition.RightSide, container)
 
         # Return the index of the new page just like the real addTab
         return tab_id
@@ -345,7 +348,7 @@ class Window(QMainWindow):
         Trap a CTRL-scroll event so the user is able to zoom in and out.
         """
         modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
+        if modifiers == Qt.KeyboardModifier.ControlModifier:
             zoom = event.angleDelta().y() > 0
             if zoom:
                 self.zoom_in()
@@ -453,7 +456,7 @@ class Window(QMainWindow):
             self.widget,
             "Locate BBC micro:bit",
             folder if self.previous_folder is None else self.previous_folder,
-            QFileDialog.ShowDirsOnly,
+            QFileDialog.Option.ShowDirsOnly,
         )
         self.previous_folder = os.path.dirname(path)
         logger.debug("Getting micro:bit path: {}".format(path))
@@ -557,7 +560,7 @@ class Window(QMainWindow):
             menu.insertAction(actions[0], copy_to_repl)
             menu.insertSeparator(actions[0])
         # Display menu.
-        menu.exec_(QCursor.pos())
+        menu.exec(QCursor.pos())
 
     def copy_to_repl(self):
         """
@@ -617,9 +620,9 @@ class Window(QMainWindow):
 
         self.fs = QDockWidget(_("Filesystem on ") + board_name)
         self.fs.setWidget(self.fs_pane)
-        self.fs.setFeatures(QDockWidget.DockWidgetMovable)
-        self.fs.setAllowedAreas(Qt.BottomDockWidgetArea)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.fs)
+        self.fs.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
+        self.fs.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.fs)
         self.fs_pane.setFocus()
         file_manager.on_list_files.connect(self.fs_pane.on_ls)
         self.fs_pane.list_files.connect(file_manager.ls)
@@ -682,7 +685,6 @@ class Window(QMainWindow):
         """
         Adds a Jupyter based REPL pane to the application.
         """
-        kernel_manager.kernel.gui = "qt4"
         kernel_client.start_channels()
         ipython_widget = JupyterREPLPane()
         ipython_widget.kernel_manager = kernel_manager
@@ -697,13 +699,13 @@ class Window(QMainWindow):
         self.repl_pane = repl_pane
         self.repl = QDockWidget(_("{} REPL").format(name))
         self.repl.setWidget(repl_pane)
-        self.repl.setFeatures(QDockWidget.DockWidgetMovable)
+        self.repl.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
         self.repl.setAllowedAreas(
-            Qt.BottomDockWidgetArea
-            | Qt.LeftDockWidgetArea
-            | Qt.RightDockWidgetArea
+            Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
         )
-        area = self._repl_area or Qt.BottomDockWidgetArea
+        area = self._repl_area or Qt.DockWidgetArea.BottomDockWidgetArea
         self.addDockWidget(area, self.repl)
         self.connect_zoom(self.repl_pane)
         self.repl_pane.set_theme(self.theme)
@@ -716,13 +718,13 @@ class Window(QMainWindow):
         self.plotter_pane = plotter_pane
         self.plotter = QDockWidget(_("{} Plotter").format(name))
         self.plotter.setWidget(plotter_pane)
-        self.plotter.setFeatures(QDockWidget.DockWidgetMovable)
+        self.plotter.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
         self.plotter.setAllowedAreas(
-            Qt.BottomDockWidgetArea
-            | Qt.LeftDockWidgetArea
-            | Qt.RightDockWidgetArea
+            Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
         )
-        area = self._plotter_area or Qt.BottomDockWidgetArea
+        area = self._plotter_area or Qt.DockWidgetArea.BottomDockWidgetArea
         self.addDockWidget(area, self.plotter)
         self.plotter_pane.set_theme(self.theme)
         self.plotter_pane.setFocus()
@@ -767,17 +769,17 @@ class Window(QMainWindow):
             _("Running: {}").format(os.path.basename(script_name))
         )
         self.runner.setWidget(self.process_runner)
-        self.runner.setFeatures(QDockWidget.DockWidgetMovable)
+        self.runner.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
         self.runner.setAllowedAreas(
-            Qt.BottomDockWidgetArea
-            | Qt.LeftDockWidgetArea
-            | Qt.RightDockWidgetArea
+            Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
         )
         self.process_runner.debugger = debugger
         if debugger:
-            area = self._debugger_area or Qt.BottomDockWidgetArea
+            area = self._debugger_area or Qt.DockWidgetArea.BottomDockWidgetArea
         else:
-            area = self._runner_area or Qt.BottomDockWidgetArea
+            area = self._runner_area or Qt.DockWidgetArea.BottomDockWidgetArea
         self.addDockWidget(area, self.runner)
         logger.info(
             "About to start_process: %r, %r, %r, %r, %r, %r, %r, %r",
@@ -815,13 +817,13 @@ class Window(QMainWindow):
         self.debug_inspector.setModel(self.debug_model)
         self.inspector = QDockWidget(_("Debug Inspector"))
         self.inspector.setWidget(self.debug_inspector)
-        self.inspector.setFeatures(QDockWidget.DockWidgetMovable)
+        self.inspector.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
         self.inspector.setAllowedAreas(
-            Qt.BottomDockWidgetArea
-            | Qt.LeftDockWidgetArea
-            | Qt.RightDockWidgetArea
+            Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
         )
-        area = self._inspector_area or Qt.RightDockWidgetArea
+        area = self._inspector_area or Qt.DockWidgetArea.RightDockWidgetArea
         self.addDockWidget(area, self.inspector)
         self.connect_zoom(self.debug_inspector)
         # Setup the inspector headers and restore column widths
@@ -1093,7 +1095,9 @@ class Window(QMainWindow):
         """
         Returns an (width, height) tuple with the screen geometry.
         """
-        screen = QDesktopWidget().screenGeometry()
+        # QDesktopWidget was removed in Qt6; use the screen the window is
+        # on (falling back to the primary screen before the window is shown).
+        screen = (self.screen() or QApplication.primaryScreen()).geometry()
         return screen.width(), screen.height()
 
     def size_window(self, x=None, y=None, w=None, h=None):
@@ -1158,7 +1162,7 @@ class Window(QMainWindow):
             min(screen_width // 2, MIN_WINDOW_WIDTH),
             min(screen_height // 2, MIN_WINDOW_HEIGHT),
         )
-        self.setTabPosition(Qt.AllDockWidgetAreas, QTabWidget.North)
+        self.setTabPosition(Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North)
         self.widget = QWidget()
         widget_layout = QVBoxLayout()
         self.widget.setLayout(widget_layout)

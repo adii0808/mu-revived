@@ -23,7 +23,7 @@ import time
 from tokenize import TokenError
 
 import semver
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal
 
 from mu.logic import sniff_newline_convention
 from mu.contrib import uflash, microfs
@@ -249,7 +249,7 @@ class MicrobitMode(MicroPythonMode):
             # New style versions, so the correct information will be
             # in the "release" field.
             # Check the release is a correct semantic version.
-            semver.parse(version_info["release"])
+            semver.Version.parse(version_info["release"])
             board_version = version_info["release"]
             logger.info("Board MicroPython: {}".format(board_version))
         else:
@@ -360,14 +360,14 @@ class MicrobitMode(MicroPythonMode):
         try:
             board_version = self.get_device_micropython_version()
             # MicroPython for micro:bit V2 version starts at 2.x.x.
-            if semver.parse(board_version)["major"] < 2:
+            if semver.Version.parse(board_version).major < 2:
                 uflash_version = uflash.MICROPYTHON_V1_VERSION
             else:
                 uflash_version = uflash.MICROPYTHON_V2_VERSION
             logger.info("Mu MicroPython: {}".format(uflash_version))
             # If there's an older version of MicroPython on the device,
             # update it with the one packaged with Mu.
-            if semver.compare(board_version, uflash_version) < 0:
+            if semver.Version.parse(board_version).compare(uflash_version) < 0:
                 logger.info("Board MicroPython is older than Mu's MicroPython")
                 update_micropython = True
         except Exception:
