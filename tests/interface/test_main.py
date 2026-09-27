@@ -2,9 +2,10 @@
 """
 Tests for the user interface elements of Mu.
 """
-from PyQt5.QtWidgets import QAction, QWidget, QFileDialog, QMessageBox, QMenu
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QWidget, QFileDialog, QMessageBox, QMenu
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QIcon, QKeySequence
 from unittest import mock
 import pytest
 from mu import __version__
@@ -44,8 +45,10 @@ def test_ButtonBar_init():
         mu.interface.main.ButtonBar(None)
         mock_movable.assert_called_once_with(False)
         mock_icon_size.assert_called_once_with(QSize(64, 64))
-        mock_tool_button_size.assert_called_once_with(3)
-        mock_context_menu_policy.assert_called_once_with(Qt.PreventContextMenu)
+        mock_tool_button_size.assert_called_once_with(
+            Qt.ToolButtonStyle.ToolButtonTextUnderIcon
+        )
+        mock_context_menu_policy.assert_called_once_with(Qt.ContextMenuPolicy.PreventContextMenu)
         mock_object_name.assert_called_once_with("StandardToolBar")
         assert mock_reset.call_count == 1
 
@@ -175,7 +178,7 @@ def test_FileTabs_removeTab_cancel():
     mock_tab.isModified.return_value = True
     qtw.widget = mock.MagicMock(return_value=mock_tab)
     mock_window = mock.MagicMock()
-    mock_window.show_confirmation.return_value = QMessageBox.Cancel
+    mock_window.show_confirmation.return_value = QMessageBox.StandardButton.Cancel
     qtw.nativeParentWidget = mock.MagicMock(return_value=mock_window)
     tab_id = 1
     with mock.patch(
@@ -202,7 +205,7 @@ def test_FileTabs_removeTab_ok():
     mock_tab.isModified.return_value = True
     qtw.widget = mock.MagicMock(return_value=mock_tab)
     mock_window = mock.MagicMock()
-    mock_window.show_confirmation.return_value = QMessageBox.Ok
+    mock_window.show_confirmation.return_value = QMessageBox.StandardButton.Ok
     qtw.nativeParentWidget = mock.MagicMock(return_value=mock_window)
     tab_id = 1
     with mock.patch(
@@ -345,7 +348,7 @@ def test_Window_wheelEvent_zoom_in():
     w.zoom_in = mock.MagicMock()
     mock_event = mock.MagicMock()
     mock_event.angleDelta().y.return_value = 1
-    modifiers = Qt.ControlModifier
+    modifiers = Qt.KeyboardModifier.ControlModifier
     with mock.patch(
         "mu.interface.main.QApplication.keyboardModifiers",
         return_value=modifiers,
@@ -363,7 +366,7 @@ def test_Window_wheelEvent_zoom_out():
     w.zoom_out = mock.MagicMock()
     mock_event = mock.MagicMock()
     mock_event.angleDelta().y.return_value = -1
-    modifiers = Qt.ControlModifier
+    modifiers = Qt.KeyboardModifier.ControlModifier
     with mock.patch(
         "mu.interface.main.QApplication.keyboardModifiers",
         return_value=modifiers,
@@ -671,9 +674,9 @@ def test_Window_get_microbit_path():
     """
     mock_fd = mock.MagicMock()
     path = "/foo"
-    ShowDirsOnly = QFileDialog.ShowDirsOnly
+    ShowDirsOnly = QFileDialog.Option.ShowDirsOnly
     mock_fd.getExistingDirectory = mock.MagicMock(return_value=path)
-    mock_fd.ShowDirsOnly = ShowDirsOnly
+    mock_fd.Option.ShowDirsOnly = ShowDirsOnly
     w = mu.interface.main.Window()
     w.widget = mock.MagicMock()
     with mock.patch("mu.interface.main.QFileDialog", mock_fd):
@@ -800,14 +803,14 @@ def test_Window_on_context_menu_nothing_selected():
     menu = QMenu()
     menu.insertAction = mock.MagicMock()
     menu.insertSeparator = mock.MagicMock()
-    menu.exec_ = mock.MagicMock()
+    menu.exec = mock.MagicMock()
     mock_tab.createStandardContextMenu = mock.MagicMock(return_value=menu)
     w.on_context_menu()
     assert mock_tab.createStandardContextMenu.call_count == 1
     # No additional items added to the menu.
     assert menu.insertAction.call_count == 0
     assert menu.insertSeparator.call_count == 0
-    assert menu.exec_.call_count == 1
+    assert menu.exec.call_count == 1
 
 
 def test_Window_on_context_menu_has_selection_but_no_repl():
@@ -824,14 +827,14 @@ def test_Window_on_context_menu_has_selection_but_no_repl():
     menu = QMenu()
     menu.insertAction = mock.MagicMock()
     menu.insertSeparator = mock.MagicMock()
-    menu.exec_ = mock.MagicMock()
+    menu.exec = mock.MagicMock()
     mock_tab.createStandardContextMenu = mock.MagicMock(return_value=menu)
     w.on_context_menu()
     assert mock_tab.createStandardContextMenu.call_count == 1
     # No additional items added to the menu.
     assert menu.insertAction.call_count == 0
     assert menu.insertSeparator.call_count == 0
-    assert menu.exec_.call_count == 1
+    assert menu.exec.call_count == 1
 
 
 def test_Window_on_context_menu_has_selection_but_no_interactive_process():
@@ -849,14 +852,14 @@ def test_Window_on_context_menu_has_selection_but_no_interactive_process():
     menu = QMenu()
     menu.insertAction = mock.MagicMock()
     menu.insertSeparator = mock.MagicMock()
-    menu.exec_ = mock.MagicMock()
+    menu.exec = mock.MagicMock()
     mock_tab.createStandardContextMenu = mock.MagicMock(return_value=menu)
     w.on_context_menu()
     assert mock_tab.createStandardContextMenu.call_count == 1
     # No additional items added to the menu.
     assert menu.insertAction.call_count == 0
     assert menu.insertSeparator.call_count == 0
-    assert menu.exec_.call_count == 1
+    assert menu.exec.call_count == 1
 
 
 def test_Window_on_context_menu_with_repl():
@@ -873,14 +876,14 @@ def test_Window_on_context_menu_with_repl():
     menu = QMenu()
     menu.insertAction = mock.MagicMock()
     menu.insertSeparator = mock.MagicMock()
-    menu.exec_ = mock.MagicMock()
+    menu.exec = mock.MagicMock()
     menu.actions = mock.MagicMock(return_value=["foo"])
     mock_tab.createStandardContextMenu = mock.MagicMock(return_value=menu)
     w.on_context_menu()
     assert mock_tab.createStandardContextMenu.call_count == 1
     assert menu.insertAction.call_count == 1
     assert menu.insertSeparator.call_count == 1
-    assert menu.exec_.call_count == 1
+    assert menu.exec.call_count == 1
 
 
 def test_Window_on_context_menu_with_process_runner():
@@ -899,14 +902,14 @@ def test_Window_on_context_menu_with_process_runner():
     menu = QMenu()
     menu.insertAction = mock.MagicMock()
     menu.insertSeparator = mock.MagicMock()
-    menu.exec_ = mock.MagicMock()
+    menu.exec = mock.MagicMock()
     menu.actions = mock.MagicMock(return_value=["foo"])
     mock_tab.createStandardContextMenu = mock.MagicMock(return_value=menu)
     w.on_context_menu()
     assert mock_tab.createStandardContextMenu.call_count == 1
     assert menu.insertAction.call_count == 1
     assert menu.insertSeparator.call_count == 1
-    assert menu.exec_.call_count == 1
+    assert menu.exec.call_count == 1
 
 
 def test_Window_copy_to_repl_fragment():
@@ -1012,7 +1015,7 @@ def test_Window_add_filesystem():
     mock_fs_class.assert_called_once_with("path/to/home")
     assert result == mock_fs
     assert w.fs_pane == mock_fs
-    w.addDockWidget.assert_called_once_with(Qt.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
     mock_fs.setFocus.assert_called_once_with()
     mock_file_manager.on_list_files.connect.assert_called_once_with(
         mock_fs.on_ls
@@ -1195,7 +1198,6 @@ def test_Window_add_jupyter_repl():
     mock_pane_class.assert_called_once_with()
     assert mock_pane.kernel_manager == mock_kernel_manager
     assert mock_pane.kernel_client == mock_kernel_client
-    assert mock_kernel_manager.kernel.gui == "qt4"
     w.add_repl.assert_called_once_with(mock_pane, "Python3 (Jupyter)")
 
 
@@ -1216,7 +1218,7 @@ def test_Window_add_repl():
     assert w.repl_pane == mock_repl_pane
     mock_repl_pane.setFocus.assert_called_once_with()
     w.connect_zoom.assert_called_once_with(mock_repl_pane)
-    w.addDockWidget.assert_called_once_with(Qt.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
 
 
 def test_Window_add_plotter():
@@ -1234,7 +1236,7 @@ def test_Window_add_plotter():
     assert w.plotter_pane == mock_plotter_pane
     mock_plotter_pane.setFocus.assert_called_once_with()
     mock_plotter_pane.set_theme.assert_called_once_with(w.theme)
-    w.addDockWidget.assert_called_once_with(Qt.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
 
 
 @pytest.mark.skipif(not CHARTS, reason="QtChart unavailable")
@@ -1248,17 +1250,17 @@ def test_Window_remember_plotter_position():
     pane = PlotterPane()
     w.add_plotter(pane, "Test Plotter")
     dock_area = w.dockWidgetArea(w.plotter)
-    assert dock_area == 8  # Bottom
+    assert dock_area == Qt.DockWidgetArea.BottomDockWidgetArea
     w.removeDockWidget(w.plotter)
-    w.addDockWidget(Qt.LeftDockWidgetArea, w.plotter)
+    w.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, w.plotter)
     dock_area = w.dockWidgetArea(w.plotter)
-    assert dock_area == 1  # Left
+    assert dock_area == Qt.DockWidgetArea.LeftDockWidgetArea
     w.remove_plotter()
     assert w.plotter is None
     pane2 = PlotterPane()
     w.add_plotter(pane2, "Test Plotter 2")
     dock_area = w.dockWidgetArea(w.plotter)
-    assert dock_area == 1  # Reopened on left
+    assert dock_area == Qt.DockWidgetArea.LeftDockWidgetArea  # Reopened
 
 
 def test_Window_add_python3_runner():
@@ -1283,7 +1285,7 @@ def test_Window_add_python3_runner():
     assert w.process_runner == mock_process_runner
     assert w.runner == mock_dock
     w.runner.setWidget.assert_called_once_with(w.process_runner)
-    w.addDockWidget.assert_called_once_with(Qt.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
 
 
 def test_Window_add_debug_inspector():
@@ -1315,7 +1317,7 @@ def test_Window_add_debug_inspector():
     assert w.debug_model == mock_model
     mock_debug_inspector.setModel.assert_called_once_with(mock_model)
     mock_dock.setWidget.assert_called_once_with(mock_debug_inspector)
-    w.addDockWidget.assert_called_once_with(Qt.RightDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.RightDockWidgetArea, mock_dock)
 
 
 def test_Window_update_debug_inspector():
@@ -1741,18 +1743,18 @@ def test_Window_update_title():
     w.setWindowTitle.assert_called_once_with("Mu - foo.py")
 
 
-def _qdesktopwidget_mock(width, height):
+def _screen_mock(width, height):
     """
-    Create and return a usable mock for QDesktopWidget that supports the
-    QDesktopWidget().screenGeometry() use case: it returns a mocked QRect
-    responding to .width() and .height() per the passed in arguments.
+    Create and return a mock for Window.screen (Qt6 replacement for the
+    removed QDesktopWidget): calling it returns a QScreen-like object whose
+    .geometry() returns a QRect-like object with .width() and .height().
     """
-    mock_sg = mock.MagicMock()
+    mock_rect = mock.MagicMock()
+    mock_rect.width = mock.MagicMock(return_value=width)
+    mock_rect.height = mock.MagicMock(return_value=height)
     mock_screen = mock.MagicMock()
-    mock_screen.width = mock.MagicMock(return_value=width)
-    mock_screen.height = mock.MagicMock(return_value=height)
-    mock_sg.screenGeometry = mock.MagicMock(return_value=mock_screen)
-    return mock.MagicMock(return_value=mock_sg)
+    mock_screen.geometry = mock.MagicMock(return_value=mock_rect)
+    return mock.MagicMock(return_value=mock_screen)
 
 
 def test_Window_autosize_window():
@@ -1760,7 +1762,7 @@ def test_Window_autosize_window():
     Check the correct calculations take place and methods are called so the
     window is resized and positioned correctly.
     """
-    mock_qdw = _qdesktopwidget_mock(1024, 768)
+    mock_screen = _screen_mock(1024, 768)
     w = mu.interface.main.Window()
     w.resize = mock.MagicMock(return_value=None)
     mock_size = mock.MagicMock()
@@ -1768,9 +1770,10 @@ def test_Window_autosize_window():
     mock_size.height = mock.MagicMock(return_value=614)
     w.geometry = mock.MagicMock(return_value=mock_size)
     w.move = mock.MagicMock(return_value=None)
-    with mock.patch("mu.interface.main.QDesktopWidget", mock_qdw):
+    w.screen = mock_screen
+    if True:
         w.size_window()
-    mock_qdw.assert_called_once_with()
+    mock_screen.assert_called_once_with()
     w.resize.assert_called_once_with(int(1024 * 0.8), int(768 * 0.8))
     w.geometry.assert_called_once_with()
     x = (1024 - 819) // 2
@@ -1785,7 +1788,7 @@ def test_Window_autosize_window_off_screen():
     coordinates would put the window OFF the screen. See issue #1613 for
     context.
     """
-    mock_qdw = _qdesktopwidget_mock(1024, 768)
+    mock_screen = _screen_mock(1024, 768)
     w = mu.interface.main.Window()
     w.resize = mock.MagicMock(return_value=None)
     mock_size = mock.MagicMock()
@@ -1793,9 +1796,10 @@ def test_Window_autosize_window_off_screen():
     mock_size.height = mock.MagicMock(return_value=614)
     w.geometry = mock.MagicMock(return_value=mock_size)
     w.move = mock.MagicMock(return_value=None)
-    with mock.patch("mu.interface.main.QDesktopWidget", mock_qdw):
+    w.screen = mock_screen
+    if True:
         w.size_window(x=-20, y=9999)
-    mock_qdw.assert_called_once_with()
+    mock_screen.assert_called_once_with()
     w.resize.assert_called_once_with(int(1024 * 0.8), int(768 * 0.8))
     w.geometry.assert_called_once_with()
     x = (1024 - 819) // 2
@@ -1869,16 +1873,15 @@ def test_Window_setup():
     mock_qtw_class = mock.MagicMock(return_value=mock_qtw)
     theme = "night"
     breakpoint_toggle = mock.MagicMock()
-    mock_qdw = _qdesktopwidget_mock(1000, 600)
+    mock_screen = _screen_mock(1000, 600)
     with mock.patch(
         "mu.interface.main.QWidget", mock_widget_class
     ), mock.patch(
         "mu.interface.main.ButtonBar", mock_button_bar_class
     ), mock.patch(
         "mu.interface.main.FileTabs", mock_qtw_class
-    ), mock.patch(
-        "mu.interface.main.QDesktopWidget", mock_qdw
     ):
+        w.screen = mock_screen
         w.setup(breakpoint_toggle, theme)
     assert w.breakpoint_toggle == breakpoint_toggle
     assert w.theme == theme

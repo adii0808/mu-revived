@@ -7,7 +7,7 @@ import os
 import pytest
 import mu.i18n
 import mu.interface.dialogs
-from PyQt5.QtWidgets import QDialog, QWidget, QDialogButtonBox
+from PyQt6.QtWidgets import QDialog, QWidget, QDialogButtonBox
 from unittest import mock
 from mu import virtual_environment
 from mu.modes import (
@@ -17,7 +17,7 @@ from mu.modes import (
     DebugMode,
     ESPMode,
 )
-from PyQt5.QtCore import QProcess
+from PyQt6.QtCore import QProcess
 
 
 def test_ModeItem_init():
@@ -89,7 +89,7 @@ def test_ModeSelector_get_mode():
     raise the expected exception if cancelled).
     """
     ms = mu.interface.dialogs.ModeSelector()
-    ms.result = mock.MagicMock(return_value=QDialog.Accepted)
+    ms.result = mock.MagicMock(return_value=QDialog.DialogCode.Accepted)
     item = mock.MagicMock()
     item.icon = "name"
     ms.mode_list = mock.MagicMock()
@@ -293,7 +293,7 @@ def test_ESPFirmwareFlasherWidget_esptool_finished(microbit):
     espff.esptool_finished(1, 0)
 
     espff.commands = ["foo", "bar"]
-    espff.esptool_finished(0, QProcess.CrashExit + 1)
+    espff.esptool_finished(0, QProcess.ExitStatus.NormalExit)
 
 
 def test_ESPFirmwareFlasherWidget_read_process(microbit):
@@ -486,7 +486,7 @@ def test_PackageDialog_setup():
     assert args0 == ("install", to_add)
     [args1], _ = queue_called_with[1]
     assert args1 == ("remove", to_remove)
-    assert pd.button_box.button(QDialogButtonBox.Ok).isEnabled() is False
+    assert pd.button_box.button(QDialogButtonBox.StandardButton.Ok).isEnabled() is False
 
 
 @pytest.mark.skip(

@@ -14,7 +14,7 @@ from mu.modes.base import (
     REPLConnection,
 )
 import mu.settings
-from PyQt5.QtCore import QIODevice
+from PyQt6.QtCore import QIODevice
 from unittest import mock
 
 
@@ -939,7 +939,7 @@ def test_REPLConnection_open():
         conn.open()
     mock_serial.setPortName.assert_called_once_with("COM0")
     mock_serial.setBaudRate.assert_called_once_with(9600)
-    mock_serial.open.assert_called_once_with(QIODevice.ReadWrite)
+    mock_serial.open.assert_called_once_with(QIODevice.OpenModeFlag.ReadWrite)
     mock_serial.readyRead.connect.assert_called_once_with(conn._on_serial_read)
 
 

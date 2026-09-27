@@ -5,10 +5,11 @@ Tests for the user interface elements of Mu.
 from unittest import mock
 import mu.i18n
 import mu.interface.editor
+from PyQt6.Qsci import QsciScintilla
 import keyword
 import re
-from PyQt5.QtCore import Qt, QMimeData, QUrl, QPointF
-from PyQt5.QtGui import QDropEvent
+from PyQt6.QtCore import Qt, QMimeData, QUrl, QPointF
+from PyQt6.QtGui import QDropEvent
 
 import pytest
 
@@ -178,13 +179,13 @@ def test_EditorPane_configure():
     ep.indicatorDefine.assert_has_calls(
         [
             mock.call(
-                ep.SquiggleIndicator, ep.check_indicators["error"]["id"]
+                QsciScintilla.IndicatorStyle.SquiggleIndicator, ep.check_indicators["error"]["id"]
             ),
             mock.call(
-                ep.SquiggleIndicator, ep.check_indicators["style"]["id"]
+                QsciScintilla.IndicatorStyle.SquiggleIndicator, ep.check_indicators["style"]["id"]
             ),
             mock.call(
-                ep.StraightBoxIndicator,
+                QsciScintilla.IndicatorStyle.StraightBoxIndicator,
                 ep.search_indicators["selection"]["id"],
             ),
         ],
@@ -213,7 +214,9 @@ def test_Editor_connect_margin_ignores_margin_4():
     ep.connect_margin(mock_fn)
     margin = 4
     line = 0
-    modifiers = Qt.NoModifier
+    # PyQt6-QScintilla only accepts an int for this argument when the signal
+    # is emitted from Python (Qt itself delivers a KeyboardModifier).
+    modifiers = Qt.KeyboardModifier.NoModifier.value
     ep.marginClicked.emit(margin, line, modifiers)
     assert mock_fn.call_count == 0
 
@@ -227,7 +230,9 @@ def test_Editor_connect_margin_1_works():
     ep.connect_margin(mock_fn)
     margin = 1
     line = 0
-    modifiers = Qt.NoModifier
+    # PyQt6-QScintilla only accepts an int for this argument when the signal
+    # is emitted from Python (Qt itself delivers a KeyboardModifier).
+    modifiers = Qt.KeyboardModifier.NoModifier.value
     ep.marginClicked.emit(margin, line, modifiers)
 
     assert mock_fn.call_count == 1
@@ -490,7 +495,7 @@ def test_EditorPane_show_annotations():
     ep.annotate = mock.MagicMock()
     ep.show_annotations()
     ep.annotate.assert_called_once_with(
-        1, "\u2191 message 1\n\u2191 message 2", ep.annotationDisplay()
+        1, "\u2191 message 1\n\u2191 message 2", ep.annotationDisplay().value
     )
 
 
@@ -713,7 +718,7 @@ def test_EditorPane_drop_event():
         ]
     )
     evt = QDropEvent(
-        QPointF(0, 0), Qt.CopyAction, data, Qt.LeftButton, Qt.NoModifier
+        QPointF(0, 0), Qt.DropAction.CopyAction, data, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier
     )
     ep.dropEvent(evt)
     # Upstream _load will handle invalid file type (.txt).

@@ -9,7 +9,7 @@ import uuid
 
 import pytest
 
-from PyQt5.QtCore import QTimer, QProcess
+from PyQt6.QtCore import QTimer, QProcess
 
 from mu import virtual_environment
 
@@ -133,7 +133,7 @@ def test_wait_shows_failure():
     with mock.patch.object(
         QProcess, "waitForFinished", return_value=False
     ), mock.patch.object(
-        QProcess, "exitStatus", return_value=QProcess.CrashExit
+        QProcess, "exitStatus", return_value=QProcess.ExitStatus.CrashExit
     ), mock.patch.object(
         QProcess, "start"
     ):

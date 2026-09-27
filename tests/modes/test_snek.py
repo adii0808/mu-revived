@@ -6,7 +6,7 @@ import pytest
 from mu.logic import Device
 from mu.modes.snek import SnekMode
 from mu.modes.api import SNEK_APIS
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox
 from unittest import mock
 
 
@@ -201,7 +201,7 @@ def test_snek_get_existing_modified():
 
     mock_window = mock.MagicMock()
     mock_window.show_confirmation = mock.MagicMock(
-        return_value=QMessageBox.Cancel
+        return_value=QMessageBox.StandardButton.Cancel
     )
     tab.nativeParentWidget = mock.MagicMock(return_value=mock_window)
     view.repl_pane = mock.MagicMock()
