@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 from .base import MicroPythonMode, REPLConnection
 from .api import SNEK_APIS
@@ -457,7 +458,10 @@ class SnekMode(MicroPythonMode):
                 "There is un-saved work, 'get' will cause you " "to lose it."
             )
             window = target_tab.nativeParentWidget()
-            if window.show_confirmation(msg) == QMessageBox.StandardButton.Cancel:
+            if (
+                window.show_confirmation(msg)
+                == QMessageBox.StandardButton.Cancel
+            ):
                 return
 
         command = ("eeprom.show(1)\n",)

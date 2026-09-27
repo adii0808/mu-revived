@@ -6,9 +6,9 @@ Usage:
 scrapy runspider adafruit_api.py -o adafruit.json
 
 """
+
 import scrapy
 from bs4 import BeautifulSoup
-
 
 URL = "https://circuitpython.readthedocs.io/en/3.x/shared-bindings/index.html"
 

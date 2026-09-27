@@ -2,6 +2,7 @@
 """
 Tests for the user interface elements of Mu.
 """
+
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QWidget, QFileDialog, QMessageBox, QMenu
 from PyQt6.QtCore import Qt, QSize
@@ -28,19 +29,21 @@ def test_ButtonBar_init():
     mock_context_menu_policy = mock.MagicMock(return_value=None)
     mock_object_name = mock.MagicMock(return_value=None)
     mock_reset = mock.MagicMock(return_value=None)
-    with mock.patch(
-        "mu.interface.main.ButtonBar.setMovable", mock_movable
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.setIconSize", mock_icon_size
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.setToolButtonStyle", mock_tool_button_size
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.setContextMenuPolicy",
-        mock_context_menu_policy,
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.setObjectName", mock_object_name
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.reset", mock_reset
+    with (
+        mock.patch("mu.interface.main.ButtonBar.setMovable", mock_movable),
+        mock.patch("mu.interface.main.ButtonBar.setIconSize", mock_icon_size),
+        mock.patch(
+            "mu.interface.main.ButtonBar.setToolButtonStyle",
+            mock_tool_button_size,
+        ),
+        mock.patch(
+            "mu.interface.main.ButtonBar.setContextMenuPolicy",
+            mock_context_menu_policy,
+        ),
+        mock.patch(
+            "mu.interface.main.ButtonBar.setObjectName", mock_object_name
+        ),
+        mock.patch("mu.interface.main.ButtonBar.reset", mock_reset),
     ):
         mu.interface.main.ButtonBar(None)
         mock_movable.assert_called_once_with(False)
@@ -48,7 +51,9 @@ def test_ButtonBar_init():
         mock_tool_button_size.assert_called_once_with(
             Qt.ToolButtonStyle.ToolButtonTextUnderIcon
         )
-        mock_context_menu_policy.assert_called_once_with(Qt.ContextMenuPolicy.PreventContextMenu)
+        mock_context_menu_policy.assert_called_once_with(
+            Qt.ContextMenuPolicy.PreventContextMenu
+        )
         mock_object_name.assert_called_once_with("StandardToolBar")
         assert mock_reset.call_count == 1
 
@@ -78,12 +83,12 @@ def test_ButtonBar_change_mode():
     actions = [{"name": "foo", "display_name": "Foo", "description": "bar"}]
     mock_mode = mock.MagicMock()
     mock_mode.actions.return_value = actions
-    with mock.patch(
-        "mu.interface.main.ButtonBar.reset", mock_reset
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.addAction", mock_add_action
-    ), mock.patch(
-        "mu.interface.main.ButtonBar.addSeparator", mock_add_separator
+    with (
+        mock.patch("mu.interface.main.ButtonBar.reset", mock_reset),
+        mock.patch("mu.interface.main.ButtonBar.addAction", mock_add_action),
+        mock.patch(
+            "mu.interface.main.ButtonBar.addSeparator", mock_add_separator
+        ),
     ):
         b = mu.interface.main.ButtonBar(None)
         mock_reset.reset_mock()
@@ -155,13 +160,11 @@ def test_FileTabs_init():
     """
     Ensure a FileTabs instance is initialised as expected.
     """
-    with mock.patch(
-        "mu.interface.main.FileTabs.setTabsClosable"
-    ) as mstc, mock.patch(
-        "mu.interface.main.FileTabs.setMovable"
-    ) as mstm, mock.patch(
-        "mu.interface.main.FileTabs.currentChanged"
-    ) as mcc:
+    with (
+        mock.patch("mu.interface.main.FileTabs.setTabsClosable") as mstc,
+        mock.patch("mu.interface.main.FileTabs.setMovable") as mstm,
+        mock.patch("mu.interface.main.FileTabs.currentChanged") as mcc,
+    ):
         qtw = mu.interface.main.FileTabs()
         mstc.assert_called_once_with(False)
         mstm.assert_called_once_with(True)
@@ -178,7 +181,9 @@ def test_FileTabs_removeTab_cancel():
     mock_tab.isModified.return_value = True
     qtw.widget = mock.MagicMock(return_value=mock_tab)
     mock_window = mock.MagicMock()
-    mock_window.show_confirmation.return_value = QMessageBox.StandardButton.Cancel
+    mock_window.show_confirmation.return_value = (
+        QMessageBox.StandardButton.Cancel
+    )
     qtw.nativeParentWidget = mock.MagicMock(return_value=mock_window)
     tab_id = 1
     with mock.patch(
@@ -284,16 +289,13 @@ def test_FileTabs_addTab():
     mock_load_icon = mock.MagicMock()
     mock_load_pixmap = mock.MagicMock()
     # Patch half the world to check it was used
-    with mock.patch(
-        "mu.interface.main.QWidget", mock_widget_class
-    ), mock.patch("mu.interface.main.QLabel", mock_label_class), mock.patch(
-        "mu.interface.main.QPushButton", mock_button_class
-    ), mock.patch(
-        "mu.interface.main.QHBoxLayout", mock_layout_class
-    ), mock.patch(
-        "mu.interface.main.load_icon", mock_load_icon
-    ), mock.patch(
-        "mu.interface.main.load_pixmap", mock_load_pixmap
+    with (
+        mock.patch("mu.interface.main.QWidget", mock_widget_class),
+        mock.patch("mu.interface.main.QLabel", mock_label_class),
+        mock.patch("mu.interface.main.QPushButton", mock_button_class),
+        mock.patch("mu.interface.main.QHBoxLayout", mock_layout_class),
+        mock.patch("mu.interface.main.load_icon", mock_load_icon),
+        mock.patch("mu.interface.main.load_pixmap", mock_load_pixmap),
     ):
         qtw.addTab(ep, ep.label)
     # Various widgets were created
@@ -1008,14 +1010,17 @@ def test_Window_add_filesystem():
     mock_dock = mock.MagicMock()
     mock_dock_class = mock.MagicMock(return_value=mock_dock)
     mock_file_manager = mock.MagicMock()
-    with mock.patch(
-        "mu.interface.main.FileSystemPane", mock_fs_class
-    ), mock.patch("mu.interface.main.QDockWidget", mock_dock_class):
+    with (
+        mock.patch("mu.interface.main.FileSystemPane", mock_fs_class),
+        mock.patch("mu.interface.main.QDockWidget", mock_dock_class),
+    ):
         result = w.add_filesystem("path/to/home", mock_file_manager)
     mock_fs_class.assert_called_once_with("path/to/home")
     assert result == mock_fs
     assert w.fs_pane == mock_fs
-    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(
+        Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock
+    )
     mock_fs.setFocus.assert_called_once_with()
     mock_file_manager.on_list_files.connect.assert_called_once_with(
         mock_fs.on_ls
@@ -1218,7 +1223,9 @@ def test_Window_add_repl():
     assert w.repl_pane == mock_repl_pane
     mock_repl_pane.setFocus.assert_called_once_with()
     w.connect_zoom.assert_called_once_with(mock_repl_pane)
-    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(
+        Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock
+    )
 
 
 def test_Window_add_plotter():
@@ -1236,7 +1243,9 @@ def test_Window_add_plotter():
     assert w.plotter_pane == mock_plotter_pane
     mock_plotter_pane.setFocus.assert_called_once_with()
     mock_plotter_pane.set_theme.assert_called_once_with(w.theme)
-    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(
+        Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock
+    )
 
 
 @pytest.mark.skipif(not CHARTS, reason="QtChart unavailable")
@@ -1277,15 +1286,18 @@ def test_Window_add_python3_runner():
     mock_dock_class = mock.MagicMock(return_value=mock_dock)
     name = "foo"
     path = "bar"
-    with mock.patch(
-        "mu.interface.main.PythonProcessPane", mock_process_class
-    ), mock.patch("mu.interface.main.QDockWidget", mock_dock_class):
+    with (
+        mock.patch("mu.interface.main.PythonProcessPane", mock_process_class),
+        mock.patch("mu.interface.main.QDockWidget", mock_dock_class),
+    ):
         result = w.add_python3_runner(name, path, ".")
         assert result == mock_process_runner
     assert w.process_runner == mock_process_runner
     assert w.runner == mock_dock
     w.runner.setWidget.assert_called_once_with(w.process_runner)
-    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(
+        Qt.DockWidgetArea.BottomDockWidgetArea, mock_dock
+    )
 
 
 def test_Window_add_debug_inspector():
@@ -1305,19 +1317,21 @@ def test_Window_add_debug_inspector():
     mock_model_class = mock.MagicMock(return_value=mock_model)
     mock_dock = mock.MagicMock()
     mock_dock_class = mock.MagicMock(return_value=mock_dock)
-    with mock.patch(
-        "mu.interface.main.DebugInspector", mock_debug_inspector_class
-    ), mock.patch(
-        "mu.interface.main.QStandardItemModel", mock_model_class
-    ), mock.patch(
-        "mu.interface.main.QDockWidget", mock_dock_class
+    with (
+        mock.patch(
+            "mu.interface.main.DebugInspector", mock_debug_inspector_class
+        ),
+        mock.patch("mu.interface.main.QStandardItemModel", mock_model_class),
+        mock.patch("mu.interface.main.QDockWidget", mock_dock_class),
     ):
         w.add_debug_inspector()
     assert w.debug_inspector == mock_debug_inspector
     assert w.debug_model == mock_model
     mock_debug_inspector.setModel.assert_called_once_with(mock_model)
     mock_dock.setWidget.assert_called_once_with(mock_debug_inspector)
-    w.addDockWidget.assert_called_once_with(Qt.DockWidgetArea.RightDockWidgetArea, mock_dock)
+    w.addDockWidget.assert_called_once_with(
+        Qt.DockWidgetArea.RightDockWidgetArea, mock_dock
+    )
 
 
 def test_Window_update_debug_inspector():
@@ -1361,9 +1375,10 @@ def test_Window_update_debug_inspector_with_exception():
     w.debug_model.rowCount.return_value = 0
     mock_standard_item = mock.MagicMock()
     mock_eval = mock.MagicMock(side_effect=Exception("BOOM!"))
-    with mock.patch(
-        "mu.interface.main.DebugInspectorItem", mock_standard_item
-    ), mock.patch("builtins.eval", mock_eval):
+    with (
+        mock.patch("mu.interface.main.DebugInspectorItem", mock_standard_item),
+        mock.patch("builtins.eval", mock_eval),
+    ):
         w.update_debug_inspector(locals_dict)
     # You just have to believe this is correct. I checked! :-)
     assert mock_standard_item.call_count == 2
@@ -1545,8 +1560,9 @@ def test_Window_set_checker_icon():
     mock_timer.timeout = DumSig()
     mock_timer_class = mock.MagicMock(return_value=mock_timer)
     mock_load_icon = mock.MagicMock()
-    with mock.patch("mu.interface.main.QTimer", mock_timer_class), mock.patch(
-        "mu.interface.main.load_icon", mock_load_icon
+    with (
+        mock.patch("mu.interface.main.QTimer", mock_timer_class),
+        mock.patch("mu.interface.main.load_icon", mock_load_icon),
     ):
         w.set_checker_icon("check-good")
         # Fake a timeout
@@ -1874,12 +1890,10 @@ def test_Window_setup():
     theme = "night"
     breakpoint_toggle = mock.MagicMock()
     mock_screen = _screen_mock(1000, 600)
-    with mock.patch(
-        "mu.interface.main.QWidget", mock_widget_class
-    ), mock.patch(
-        "mu.interface.main.ButtonBar", mock_button_bar_class
-    ), mock.patch(
-        "mu.interface.main.FileTabs", mock_qtw_class
+    with (
+        mock.patch("mu.interface.main.QWidget", mock_widget_class),
+        mock.patch("mu.interface.main.ButtonBar", mock_button_bar_class),
+        mock.patch("mu.interface.main.FileTabs", mock_qtw_class),
     ):
         w.screen = mock_screen
         w.setup(breakpoint_toggle, theme)
@@ -1950,8 +1964,9 @@ def test_Window_connect_tab_rename():
     mock_handler = mock.MagicMock()
     mock_shortcut = mock.MagicMock()
     mock_sequence = mock.MagicMock()
-    with mock.patch("mu.interface.main.QShortcut", mock_shortcut), mock.patch(
-        "mu.interface.main.QKeySequence", mock_sequence
+    with (
+        mock.patch("mu.interface.main.QShortcut", mock_shortcut),
+        mock.patch("mu.interface.main.QKeySequence", mock_sequence),
     ):
         w.connect_tab_rename(mock_handler, "Ctrl-Shift-S")
     w.tabs.tabBarDoubleClicked.connect.assert_called_once_with(mock_handler)
@@ -1964,9 +1979,10 @@ def test_Window_open_directory_from_os_windows():
     Ensure the file explorer for Windows is called for the expected path.
     """
     w = mu.interface.main.Window()
-    with mock.patch("mu.interface.main.sys") as mock_sys, mock.patch(
-        "mu.interface.main.os"
-    ) as mock_os:
+    with (
+        mock.patch("mu.interface.main.sys") as mock_sys,
+        mock.patch("mu.interface.main.os") as mock_os,
+    ):
         path = "c:\\a\\path\\"
         mock_sys.platform = "win32"
         w.open_directory_from_os(path)
@@ -1978,9 +1994,10 @@ def test_Window_open_directory_from_os_darwin():
     Ensure the file explorer for OSX is called for the expected path.
     """
     w = mu.interface.main.Window()
-    with mock.patch("mu.interface.main.sys") as mock_sys, mock.patch(
-        "mu.interface.main.os.system"
-    ) as mock_system:
+    with (
+        mock.patch("mu.interface.main.sys") as mock_sys,
+        mock.patch("mu.interface.main.os.system") as mock_system,
+    ):
         path = "/home/user/mu_code/images/"
         mock_sys.platform = "darwin"
         w.open_directory_from_os(path)
@@ -1993,9 +2010,10 @@ def test_Window_open_directory_from_os_freedesktop():
     expected path.
     """
     w = mu.interface.main.Window()
-    with mock.patch("mu.interface.main.sys") as mock_sys, mock.patch(
-        "mu.interface.main.os.system"
-    ) as mock_system:
+    with (
+        mock.patch("mu.interface.main.sys") as mock_sys,
+        mock.patch("mu.interface.main.os.system") as mock_system,
+    ):
         path = "/home/user/mu_code/images/"
         mock_sys.platform = "linux"
         w.open_directory_from_os(path)
@@ -2040,8 +2058,9 @@ def test_Window_connect_find_replace():
     mock_handler = mock.MagicMock()
     mock_shortcut = mock.MagicMock()
     mock_sequence = mock.MagicMock()
-    with mock.patch("mu.interface.main.QShortcut", mock_shortcut), mock.patch(
-        "mu.interface.main.QKeySequence", mock_sequence
+    with (
+        mock.patch("mu.interface.main.QShortcut", mock_shortcut),
+        mock.patch("mu.interface.main.QKeySequence", mock_sequence),
     ):
         window.connect_find_replace(mock_handler, "Ctrl+F")
     mock_sequence.assert_called_once_with("Ctrl+F")
@@ -2062,8 +2081,9 @@ def test_Window_connect_find_again():
     mock_sequence = mock.MagicMock()
     ksf = mock.MagicMock("F3")
     # ksb = mock.MagicMock("Shift+F3")
-    with mock.patch("mu.interface.main.QShortcut", mock_shortcut), mock.patch(
-        "mu.interface.main.QKeySequence", mock_sequence
+    with (
+        mock.patch("mu.interface.main.QShortcut", mock_shortcut),
+        mock.patch("mu.interface.main.QKeySequence", mock_sequence),
     ):
         window.connect_find_again(mock_handlers, "F3")
     mock_sequence.assert_has_calls((mock.call("F3"), mock.call("Shift+F3")))
@@ -2227,8 +2247,9 @@ def test_Window_connect_toggle_comments():
     mock_handler = mock.MagicMock()
     mock_shortcut = mock.MagicMock()
     mock_sequence = mock.MagicMock()
-    with mock.patch("mu.interface.main.QShortcut", mock_shortcut), mock.patch(
-        "mu.interface.main.QKeySequence", mock_sequence
+    with (
+        mock.patch("mu.interface.main.QShortcut", mock_shortcut),
+        mock.patch("mu.interface.main.QKeySequence", mock_sequence),
     ):
         window.connect_toggle_comments(mock_handler, "Ctrl+K")
     mock_sequence.assert_called_once_with("Ctrl+K")
@@ -2286,10 +2307,12 @@ def test_Window_upload_to_python_anywhere():
     files = {
         "foo.py": "foo.py",
     }
-    with mock.patch(
-        "mu.interface.main.QProgressDialog", mock_progress_class
-    ), mock.patch("mu.interface.main.QThread", mock_thread_class), mock.patch(
-        "mu.interface.main.PythonAnywhereWorker", mock_worker_class
+    with (
+        mock.patch("mu.interface.main.QProgressDialog", mock_progress_class),
+        mock.patch("mu.interface.main.QThread", mock_thread_class),
+        mock.patch(
+            "mu.interface.main.PythonAnywhereWorker", mock_worker_class
+        ),
     ):
         window.upload_to_python_anywhere(
             instance, username, token, app_name, files
@@ -2377,8 +2400,9 @@ def test_StatusBar_connect_logs():
 
     mock_shortcut = mock.MagicMock()
     mock_sequence = mock.MagicMock()
-    with mock.patch("mu.interface.main.QShortcut", mock_shortcut), mock.patch(
-        "mu.interface.main.QKeySequence", mock_sequence
+    with (
+        mock.patch("mu.interface.main.QShortcut", mock_shortcut),
+        mock.patch("mu.interface.main.QKeySequence", mock_sequence),
     ):
         sb.connect_logs(handler, "Ctrl+X")
     assert sb.logs_label.mousePressEvent == handler
@@ -2398,8 +2422,9 @@ def test_StatusBar_connect_mode():
 
     mock_shortcut = mock.MagicMock()
     mock_sequence = mock.MagicMock()
-    with mock.patch("mu.interface.main.QShortcut", mock_shortcut), mock.patch(
-        "mu.interface.main.QKeySequence", mock_sequence
+    with (
+        mock.patch("mu.interface.main.QShortcut", mock_shortcut),
+        mock.patch("mu.interface.main.QKeySequence", mock_sequence),
     ):
         sb.connect_mode(handler, "Ctrl-X")
     assert sb.mode_label.mousePressEvent == handler

@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import keyword
 import os
 import re
@@ -33,7 +34,6 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 from mu.interface.themes import Font, DayTheme
 from mu.logic import NEWLINE
-
 
 # Regular Expression for valid individual code 'words'
 RE_VALID_WORD = re.compile(r"^\w+$")
@@ -197,7 +197,9 @@ class EditorPane(QsciScintilla):
         self.set_theme()
         # Markers and indicators
         self.setMarginSensitivity(0, True)
-        self.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.BREAKPOINT_MARKER)
+        self.markerDefine(
+            QsciScintilla.MarkerSymbol.Circle, self.BREAKPOINT_MARKER
+        )
         self.setMarginSensitivity(1, True)
         # Additional dummy margin to prevent accidental breakpoint toggles when
         # trying to position the edit cursor to the left of the first column,
@@ -211,14 +213,20 @@ class EditorPane(QsciScintilla):
         self.setIndicatorDrawUnder(True)
         for type_ in self.check_indicators:
             self.indicatorDefine(
-                QsciScintilla.IndicatorStyle.SquiggleIndicator, self.check_indicators[type_]["id"]
+                QsciScintilla.IndicatorStyle.SquiggleIndicator,
+                self.check_indicators[type_]["id"],
             )
         for type_ in self.search_indicators:
             self.indicatorDefine(
-                QsciScintilla.IndicatorStyle.StraightBoxIndicator, self.search_indicators[type_]["id"]
+                QsciScintilla.IndicatorStyle.StraightBoxIndicator,
+                self.search_indicators[type_]["id"],
             )
-        self.indicatorDefine(QsciScintilla.IndicatorStyle.FullBoxIndicator, self.DEBUG_INDICATOR)
-        self.setAnnotationDisplay(QsciScintilla.AnnotationDisplay.AnnotationBoxed)
+        self.indicatorDefine(
+            QsciScintilla.IndicatorStyle.FullBoxIndicator, self.DEBUG_INDICATOR
+        )
+        self.setAnnotationDisplay(
+            QsciScintilla.AnnotationDisplay.AnnotationBoxed
+        )
         self.selectionChanged.connect(self.selection_change_listener)
         self.set_zoom()
 
@@ -227,6 +235,7 @@ class EditorPane(QsciScintilla):
         Connect clicking the margin to the passed in handler function, via a
         filtering handler that ignores clicks on margin 4.
         """
+
         # Margin 4 motivation in self.configure comments.
         def func_ignoring_margin_4(margin, line, modifiers):
             if margin != 4:

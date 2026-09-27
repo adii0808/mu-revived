@@ -2,6 +2,7 @@
 """
 Tests for the user interface elements of Mu.
 """
+
 from unittest import mock
 import mu.i18n
 import mu.interface.editor
@@ -57,12 +58,12 @@ def test_EditorPane_init_python():
     mock_text = mock.MagicMock(return_value=None)
     mock_modified = mock.MagicMock(return_value=None)
     mock_configure = mock.MagicMock(return_value=None)
-    with mock.patch(
-        "mu.interface.editor.EditorPane.setText", mock_text
-    ), mock.patch(
-        "mu.interface.editor.EditorPane.setModified", mock_modified
-    ), mock.patch(
-        "mu.interface.editor.EditorPane.configure", mock_configure
+    with (
+        mock.patch("mu.interface.editor.EditorPane.setText", mock_text),
+        mock.patch(
+            "mu.interface.editor.EditorPane.setModified", mock_modified
+        ),
+        mock.patch("mu.interface.editor.EditorPane.configure", mock_configure),
     ):
         path = "/foo/bar.py"
         text = 'print("Hello, World!")'
@@ -83,12 +84,12 @@ def test_EditorPane_init_html():
     mock_text = mock.MagicMock(return_value=None)
     mock_modified = mock.MagicMock(return_value=None)
     mock_configure = mock.MagicMock(return_value=None)
-    with mock.patch(
-        "mu.interface.editor.EditorPane.setText", mock_text
-    ), mock.patch(
-        "mu.interface.editor.EditorPane.setModified", mock_modified
-    ), mock.patch(
-        "mu.interface.editor.EditorPane.configure", mock_configure
+    with (
+        mock.patch("mu.interface.editor.EditorPane.setText", mock_text),
+        mock.patch(
+            "mu.interface.editor.EditorPane.setModified", mock_modified
+        ),
+        mock.patch("mu.interface.editor.EditorPane.configure", mock_configure),
     ):
         path = "/foo/bar.html"
         text = "<html></html>"
@@ -109,12 +110,12 @@ def test_EditorPane_init_css():
     mock_text = mock.MagicMock(return_value=None)
     mock_modified = mock.MagicMock(return_value=None)
     mock_configure = mock.MagicMock(return_value=None)
-    with mock.patch(
-        "mu.interface.editor.EditorPane.setText", mock_text
-    ), mock.patch(
-        "mu.interface.editor.EditorPane.setModified", mock_modified
-    ), mock.patch(
-        "mu.interface.editor.EditorPane.configure", mock_configure
+    with (
+        mock.patch("mu.interface.editor.EditorPane.setText", mock_text),
+        mock.patch(
+            "mu.interface.editor.EditorPane.setModified", mock_modified
+        ),
+        mock.patch("mu.interface.editor.EditorPane.configure", mock_configure),
     ):
         path = "/foo/bar.css"
         text = "h1 { color: red; }"
@@ -179,10 +180,12 @@ def test_EditorPane_configure():
     ep.indicatorDefine.assert_has_calls(
         [
             mock.call(
-                QsciScintilla.IndicatorStyle.SquiggleIndicator, ep.check_indicators["error"]["id"]
+                QsciScintilla.IndicatorStyle.SquiggleIndicator,
+                ep.check_indicators["error"]["id"],
             ),
             mock.call(
-                QsciScintilla.IndicatorStyle.SquiggleIndicator, ep.check_indicators["style"]["id"]
+                QsciScintilla.IndicatorStyle.SquiggleIndicator,
+                ep.check_indicators["style"]["id"],
             ),
             mock.call(
                 QsciScintilla.IndicatorStyle.StraightBoxIndicator,
@@ -620,7 +623,7 @@ def test_EditorPane_highlight_selected_matches_with_match(text, search_for):
         if selected_range is None:
             selected_range = range
         else:
-            (line_start, col_start, line_end, col_end) = range
+            line_start, col_start, line_end, col_end = range
             expected_ranges.append(
                 dict(
                     line_start=line_start,
@@ -718,7 +721,11 @@ def test_EditorPane_drop_event():
         ]
     )
     evt = QDropEvent(
-        QPointF(0, 0), Qt.DropAction.CopyAction, data, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier
+        QPointF(0, 0),
+        Qt.DropAction.CopyAction,
+        data,
+        Qt.MouseButton.LeftButton,
+        Qt.KeyboardModifier.NoModifier,
     )
     ep.dropEvent(evt)
     # Upstream _load will handle invalid file type (.txt).
@@ -952,9 +959,10 @@ def test_EditorPane_wheelEvent():
     ep = mu.interface.editor.EditorPane(None, "baz")
     mock_app = mock.MagicMock()
     mock_app.keyboardModifiers.return_value = []
-    with mock.patch("mu.interface.editor.QApplication", mock_app), mock.patch(
-        "mu.interface.editor.QsciScintilla.wheelEvent"
-    ) as mw:
+    with (
+        mock.patch("mu.interface.editor.QApplication", mock_app),
+        mock.patch("mu.interface.editor.QsciScintilla.wheelEvent") as mw,
+    ):
         ep.wheelEvent(None)
         mw.assert_called_once_with(None)
 
@@ -964,9 +972,10 @@ def test_EditorPane_wheelEvent_with_modifier_ignored():
     ep = mu.interface.editor.EditorPane(None, "baz")
     mock_app = mock.MagicMock()
     mock_app.keyboardModifiers.return_value = ["CTRL"]
-    with mock.patch("mu.interface.editor.QApplication", mock_app), mock.patch(
-        "mu.interface.editor.QsciScintilla.wheelEvent"
-    ) as mw:
+    with (
+        mock.patch("mu.interface.editor.QApplication", mock_app),
+        mock.patch("mu.interface.editor.QsciScintilla.wheelEvent") as mw,
+    ):
         ep.wheelEvent(None)
         assert mw.call_count == 0
 

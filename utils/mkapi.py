@@ -3,9 +3,9 @@
 Takes a JSON representation of an API and emits elements to be inserted into a
 Python list such that they conform to Scintilla's API description DSL.
 """
+
 import sys
 import json
-
 
 if __name__ == "__main__":
     f = sys.argv[1]

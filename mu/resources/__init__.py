@@ -17,11 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 from importlib.resources import files
 from PyQt6.QtGui import QPixmap, QIcon, QMovie
 from PyQt6.QtCore import QDir
 import os
-
 
 # The following lines add the images and css directories to the search path.
 _RESOURCES = files(__name__)

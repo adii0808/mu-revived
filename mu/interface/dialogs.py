@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import os
 import logging
 import sys
@@ -105,7 +106,8 @@ class ModeSelector(QDialog):
         instructions.setWordWrap(True)
         widget_layout.addWidget(instructions)
         button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -384,7 +386,9 @@ class ESPFirmwareFlasherWidget(QWidget):
         )
         label = QLabel(instructions)
         label.setTextFormat(Qt.TextFormat.RichText)
-        label.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextBrowserInteraction
+        )
         label.setOpenExternalLinks(True)
         label.setWordWrap(True)
         grp_instructions_vbox.addWidget(label)
@@ -488,7 +492,9 @@ class ESPFirmwareFlasherWidget(QWidget):
 
     def run_esptool(self):
         self.process = QProcess(self)
-        self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        self.process.setProcessChannelMode(
+            QProcess.ProcessChannelMode.MergedChannels
+        )
         self.process.readyReadStandardError.connect(self.read_process)
         self.process.readyReadStandardOutput.connect(self.read_process)
         self.process.finished.connect(self.esptool_finished)
@@ -576,7 +582,8 @@ class AdminDialog(QDialog):
         self.tabs = QTabWidget()
         widget_layout.addWidget(self.tabs)
         button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -633,21 +640,19 @@ class AdminDialog(QDialog):
             settings["envars"] = self.envar_widget.text_area.toPlainText()
         if self.microbit_widget:
             settings["minify"] = self.microbit_widget.minify.isChecked()
-            settings[
-                "microbit_runtime"
-            ] = self.microbit_widget.runtime_path.text()
+            settings["microbit_runtime"] = (
+                self.microbit_widget.runtime_path.text()
+            )
         if self.package_widget:
             settings["packages"] = self.package_widget.text_area.toPlainText()
         if self.python_anywhere_widget:
-            settings[
-                "pa_username"
-            ] = self.python_anywhere_widget.username_text.text().strip()
-            settings[
-                "pa_token"
-            ] = self.python_anywhere_widget.token_text.text().strip()
-            settings[
-                "pa_instance"
-            ] = (
+            settings["pa_username"] = (
+                self.python_anywhere_widget.username_text.text().strip()
+            )
+            settings["pa_token"] = (
+                self.python_anywhere_widget.token_text.text().strip()
+            )
+            settings["pa_instance"] = (
                 self.python_anywhere_widget.instance_combo.currentText().strip()
             )
         settings["locale"] = self.locale_widget.get_locale()
@@ -689,7 +694,8 @@ class FindReplaceDialog(QDialog):
         self.replace_all_flag.setChecked(replace_flag)
         widget_layout.addWidget(self.replace_all_flag)
         button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -744,7 +750,9 @@ class PackageDialog(QDialog):
         widget_layout.addWidget(self.text_area)
         # Buttons.
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
-        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(
+            False
+        )
         self.button_box.accepted.connect(self.accept)
         widget_layout.addWidget(self.button_box)
 
@@ -774,7 +782,9 @@ class PackageDialog(QDialog):
         Set the UI to a valid end state.
         """
         self.text_area.appendPlainText("\nFINISHED")
-        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(
+            True
+        )
 
     def run_pip(self, command, packages):
         """

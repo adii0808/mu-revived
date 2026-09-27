@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import os
 import logging
 import time
@@ -31,7 +32,6 @@ from mu.modes.api import MICROBIT_APIS, SHARED_APIS
 from mu.modes.base import MicroPythonMode, FileManager
 from mu.interface.panes import CHARTS
 from .. import config
-
 
 # We can run without nudatus
 can_minify = True

@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import sys
 import os
 import re
@@ -58,7 +59,6 @@ from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from ..i18n import language_code
 from mu.interface.themes import Font, DEFAULT_FONT_SIZE
 from mu.interface.themes import DAY_STYLE, NIGHT_STYLE, CONTRAST_STYLE
-
 
 logger = logging.getLogger(__name__)
 
@@ -142,13 +142,13 @@ class JupyterREPLPane(RichJupyterWidget):
 
 VT100_RETURN = b"\r"
 VT100_BACKSPACE = b"\b"
-VT100_DELETE = b"\x1B[\x33\x7E"
-VT100_UP = b"\x1B[A"
-VT100_DOWN = b"\x1B[B"
-VT100_RIGHT = b"\x1B[C"
-VT100_LEFT = b"\x1B[D"
-VT100_HOME = b"\x1B[H"
-VT100_END = b"\x1B[F"
+VT100_DELETE = b"\x1b[\x33\x7e"
+VT100_UP = b"\x1b[A"
+VT100_DOWN = b"\x1b[B"
+VT100_RIGHT = b"\x1b[C"
+VT100_LEFT = b"\x1b[D"
+VT100_HOME = b"\x1b[H"
+VT100_END = b"\x1b[F"
 
 
 class MicroPythonREPLPane(QTextEdit):
@@ -211,8 +211,12 @@ class MicroPythonREPLPane(QTextEdit):
             copy_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_C)
             paste_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_V)
         else:
-            copy_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_C)
-            paste_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_V)
+            copy_keys = QKeySequence(
+                Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_C
+            )
+            paste_keys = QKeySequence(
+                Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_V
+            )
 
         menu.addAction("Copy", self.copy, copy_keys)
         menu.addAction("Paste", self.paste, paste_keys)
@@ -235,14 +239,19 @@ class MicroPythonREPLPane(QTextEdit):
         ctrl_only = data.modifiers() == Qt.KeyboardModifier.ControlModifier
         meta_only = data.modifiers() == Qt.KeyboardModifier.MetaModifier
         ctrl_shift_only = (
-            data.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+            data.modifiers()
+            == Qt.KeyboardModifier.ControlModifier
+            | Qt.KeyboardModifier.ShiftModifier
         )
         shift_down = data.modifiers() & Qt.KeyboardModifier.ShiftModifier
         on_osx = platform.system() == "Darwin"
 
         if key == Qt.Key.Key_Return:
             # Move cursor to the end of document before sending carriage return
-            tc.movePosition(QTextCursor.MoveOperation.End, mode=QTextCursor.MoveMode.MoveAnchor)
+            tc.movePosition(
+                QTextCursor.MoveOperation.End,
+                mode=QTextCursor.MoveMode.MoveAnchor,
+            )
             self.device_cursor_position = tc.position()
             self.send(VT100_RETURN)
         elif key == Qt.Key.Key_Backspace:
@@ -277,8 +286,9 @@ class MicroPythonREPLPane(QTextEdit):
             self.send(VT100_END)
         elif (on_osx and meta_only) or (not on_osx and ctrl_only):
             # Handle the Control key. On OSX/macOS/Darwin (python calls this
-            # platform Darwin), this is handled by Qt.KeyboardModifier.MetaModifier. Other
-            # platforms (Linux, Windows) call this Qt.KeyboardModifier.ControlModifier. Go
+            # platform Darwin), this is handled by
+            # Qt.KeyboardModifier.MetaModifier. Other platforms (Linux, Windows)
+            # call this Qt.KeyboardModifier.ControlModifier. Go
             # figure. See http://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
             if Qt.Key.Key_A <= key <= Qt.Key.Key_Z:
                 # The microbit treats an input of \x01 as Ctrl+A, etc.
@@ -418,16 +428,24 @@ class MicroPythonREPLPane(QTextEdit):
                         count = 1 if count_string == "" else int(count_string)
                         action = match.group("action")
                         if action == "A":  # up
-                            tc.movePosition(QTextCursor.MoveOperation.Up, n=count)
+                            tc.movePosition(
+                                QTextCursor.MoveOperation.Up, n=count
+                            )
                             self.device_cursor_position = tc.position()
                         elif action == "B":  # down
-                            tc.movePosition(QTextCursor.MoveOperation.Down, n=count)
+                            tc.movePosition(
+                                QTextCursor.MoveOperation.Down, n=count
+                            )
                             self.device_cursor_position = tc.position()
                         elif action == "C":  # right
-                            tc.movePosition(QTextCursor.MoveOperation.Right, n=count)
+                            tc.movePosition(
+                                QTextCursor.MoveOperation.Right, n=count
+                            )
                             self.device_cursor_position = tc.position()
                         elif action == "D":  # left
-                            tc.movePosition(QTextCursor.MoveOperation.Left, n=count)
+                            tc.movePosition(
+                                QTextCursor.MoveOperation.Left, n=count
+                            )
                             self.device_cursor_position = tc.position()
                         elif action == "K":  # delete things
                             if count_string == "":  # delete to end of line
@@ -439,7 +457,7 @@ class MicroPythonREPLPane(QTextEdit):
                                 self.device_cursor_position = tc.position()
                         else:
                             # Unknown action, log warning and ignore
-                            command = match.group(0).replace("\x1B", "<Esc>")
+                            command = match.group(0).replace("\x1b", "<Esc>")
                             msg = "Received unsupported VT100 command: {}"
                             logger.warning(msg.format(command))
                     else:
@@ -460,7 +478,7 @@ class MicroPythonREPLPane(QTextEdit):
                             logger.warning("dropped title {}".format(string))
                         else:
                             # Unknown action, log warning and ignore
-                            command = match.group(0).replace("\x1B", "<Esc>")
+                            command = match.group(0).replace("\x1b", "<Esc>")
                             msg = "Received unsupported VT100 command: {}"
                             logger.warning(msg.format(command))
                     else:
@@ -541,13 +559,20 @@ class SnekREPLPane(MicroPythonREPLPane):
         mod = data.modifiers()
         ctrl_only = mod == Qt.KeyboardModifier.ControlModifier
         meta_only = mod == Qt.KeyboardModifier.MetaModifier
-        ctrl_shift_only = mod == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+        ctrl_shift_only = (
+            mod
+            == Qt.KeyboardModifier.ControlModifier
+            | Qt.KeyboardModifier.ShiftModifier
+        )
         shift_down = mod & Qt.KeyboardModifier.ShiftModifier
         on_osx = platform.system() == "Darwin"
 
         if key == Qt.Key.Key_Return:
             # Move cursor to the end of document before sending carriage return
-            tc.movePosition(QTextCursor.MoveOperation.End, mode=QTextCursor.MoveMode.MoveAnchor)
+            tc.movePosition(
+                QTextCursor.MoveOperation.End,
+                mode=QTextCursor.MoveMode.MoveAnchor,
+            )
             self.device_cursor_position = tc.position()
             self.send(VT100_RETURN)
         elif key == Qt.Key.Key_Backspace:
@@ -570,8 +595,9 @@ class SnekREPLPane(MicroPythonREPLPane):
                 self.move_cursor_to(tc.selectionStart())
         elif (on_osx and meta_only) or (not on_osx and ctrl_only):
             # Handle the Control key. On OSX/macOS/Darwin (python calls this
-            # platform Darwin), this is handled by Qt.KeyboardModifier.MetaModifier. Other
-            # platforms (Linux, Windows) call this Qt.KeyboardModifier.ControlModifier. Go
+            # platform Darwin), this is handled by
+            # Qt.KeyboardModifier.MetaModifier. Other platforms (Linux, Windows)
+            # call this Qt.KeyboardModifier.ControlModifier. Go
             # figure. See http://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
             if Qt.Key.Key_A <= key <= Qt.Key.Key_Z:
                 # The microbit treats an input of \x01 as Ctrl+A, etc.
@@ -598,7 +624,9 @@ class SnekREPLPane(MicroPythonREPLPane):
     def set_devicecursor_to_qtcursor(self):
         # Move cursor to the end of document
         tc = self.textCursor()
-        tc.movePosition(QTextCursor.MoveOperation.End, mode=QTextCursor.MoveMode.MoveAnchor)
+        tc.movePosition(
+            QTextCursor.MoveOperation.End, mode=QTextCursor.MoveMode.MoveAnchor
+        )
         self.device_cursor_position = tc.position()
 
     def send_commands(self, commands):
@@ -693,7 +721,9 @@ class MuFileList(QListWidget):
         msg.setIcon(QMessageBox.Icon.Information)
         msg.setText(_("File already exists; overwrite it?"))
         msg.setWindowTitle(_("File already exists"))
-        msg.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        msg.setStandardButtons(
+            QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel
+        )
         return msg.exec() == QMessageBox.StandardButton.Ok
 
 
@@ -1091,7 +1121,9 @@ class PythonProcessPane(QTextEdit):
             command_args = []
         logger.info("Command args: {}".format(command_args))
         self.process = QProcess(self)
-        self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        self.process.setProcessChannelMode(
+            QProcess.ProcessChannelMode.MergedChannels
+        )
         # Force buffers to flush immediately.
         env = QProcessEnvironment.systemEnvironment()
         env.insert("PYTHONUNBUFFERED", "1")
@@ -1185,8 +1217,12 @@ class PythonProcessPane(QTextEdit):
             copy_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_C)
             paste_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_V)
         else:
-            copy_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_C)
-            paste_keys = QKeySequence(Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_V)
+            copy_keys = QKeySequence(
+                Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_C
+            )
+            paste_keys = QKeySequence(
+                Qt.Modifier.CTRL | Qt.Modifier.SHIFT | Qt.Key.Key_V
+            )
         menu.addAction("Copy", self.copy, copy_keys)
         menu.addAction("Paste", self.paste, paste_keys)
         menu.exec(QCursor.pos())
@@ -1271,9 +1307,11 @@ class PythonProcessPane(QTextEdit):
         if key == Qt.Key.Key_Enter or key == Qt.Key.Key_Return:
             msg = b"\n"
         elif (
-            platform.system() == "Darwin" and modifiers == Qt.KeyboardModifier.MetaModifier
+            platform.system() == "Darwin"
+            and modifiers == Qt.KeyboardModifier.MetaModifier
         ) or (
-            platform.system() != "Darwin" and modifiers == Qt.KeyboardModifier.ControlModifier
+            platform.system() != "Darwin"
+            and modifiers == Qt.KeyboardModifier.ControlModifier
         ):
             # Handle CTRL-C and CTRL-D
             if self.process and self.running:
@@ -1319,8 +1357,13 @@ class PythonProcessPane(QTextEdit):
             cursor = self.textCursor()
             cursor.movePosition(QTextCursor.MoveOperation.End)
             self.setTextCursor(cursor)
-        elif (modifiers == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier) or (
-            platform.system() == "Darwin" and modifiers == Qt.KeyboardModifier.ControlModifier
+        elif (
+            modifiers
+            == Qt.KeyboardModifier.ControlModifier
+            | Qt.KeyboardModifier.ShiftModifier
+        ) or (
+            platform.system() == "Darwin"
+            and modifiers == Qt.KeyboardModifier.ControlModifier
         ):
             # Command-key on Mac, Ctrl-Shift on Win/Lin
             if key == Qt.Key.Key_C:

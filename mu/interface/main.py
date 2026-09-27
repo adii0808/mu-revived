@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import sys
 import logging
 import os.path
@@ -73,7 +74,6 @@ from mu.interface.editor import EditorPane
 from mu.interface.widgets import DeviceSelector
 from mu.interface.workers import PythonAnywhereWorker
 from mu.resources import load_icon, load_pixmap
-
 
 logger = logging.getLogger(__name__)
 
@@ -228,7 +228,10 @@ class FileTabs(QTabWidget):
                 "There is un-saved work, closing the tab will cause you "
                 "to lose it."
             )
-            if window.show_confirmation(msg) == QMessageBox.StandardButton.Cancel:
+            if (
+                window.show_confirmation(msg)
+                == QMessageBox.StandardButton.Cancel
+            ):
                 return
         super(FileTabs, self).removeTab(tab_id)
 
@@ -293,7 +296,9 @@ class FileTabs(QTabWidget):
         container.setLayout(box)
         # Add the box, clearly it isn't a button but QTabBar actually takes
         # any QWidget not just buttons
-        self.tabBar().setTabButton(tab_id, QTabBar.ButtonPosition.RightSide, container)
+        self.tabBar().setTabButton(
+            tab_id, QTabBar.ButtonPosition.RightSide, container
+        )
 
         # Return the index of the new page just like the real addTab
         return tab_id
@@ -718,7 +723,9 @@ class Window(QMainWindow):
         self.plotter_pane = plotter_pane
         self.plotter = QDockWidget(_("{} Plotter").format(name))
         self.plotter.setWidget(plotter_pane)
-        self.plotter.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
+        self.plotter.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetMovable
+        )
         self.plotter.setAllowedAreas(
             Qt.DockWidgetArea.BottomDockWidgetArea
             | Qt.DockWidgetArea.LeftDockWidgetArea
@@ -769,7 +776,9 @@ class Window(QMainWindow):
             _("Running: {}").format(os.path.basename(script_name))
         )
         self.runner.setWidget(self.process_runner)
-        self.runner.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
+        self.runner.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetMovable
+        )
         self.runner.setAllowedAreas(
             Qt.DockWidgetArea.BottomDockWidgetArea
             | Qt.DockWidgetArea.LeftDockWidgetArea
@@ -777,7 +786,9 @@ class Window(QMainWindow):
         )
         self.process_runner.debugger = debugger
         if debugger:
-            area = self._debugger_area or Qt.DockWidgetArea.BottomDockWidgetArea
+            area = (
+                self._debugger_area or Qt.DockWidgetArea.BottomDockWidgetArea
+            )
         else:
             area = self._runner_area or Qt.DockWidgetArea.BottomDockWidgetArea
         self.addDockWidget(area, self.runner)
@@ -817,7 +828,9 @@ class Window(QMainWindow):
         self.debug_inspector.setModel(self.debug_model)
         self.inspector = QDockWidget(_("Debug Inspector"))
         self.inspector.setWidget(self.debug_inspector)
-        self.inspector.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
+        self.inspector.setFeatures(
+            QDockWidget.DockWidgetFeature.DockWidgetMovable
+        )
         self.inspector.setAllowedAreas(
             Qt.DockWidgetArea.BottomDockWidgetArea
             | Qt.DockWidgetArea.LeftDockWidgetArea
@@ -1162,7 +1175,9 @@ class Window(QMainWindow):
             min(screen_width // 2, MIN_WINDOW_WIDTH),
             min(screen_height // 2, MIN_WINDOW_HEIGHT),
         )
-        self.setTabPosition(Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North)
+        self.setTabPosition(
+            Qt.DockWidgetArea.AllDockWidgetAreas, QTabWidget.TabPosition.North
+        )
         self.widget = QWidget()
         widget_layout = QVBoxLayout()
         self.widget.setLayout(widget_layout)

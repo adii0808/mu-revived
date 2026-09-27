@@ -16,13 +16,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 from mu.modes.base import MicroPythonMode, FileManager
 from mu.modes.api import ESP_APIS, SHARED_APIS
 from mu.interface.panes import CHARTS
 from PyQt6.QtCore import QThread
 import os
-
 
 logger = logging.getLogger(__name__)
 

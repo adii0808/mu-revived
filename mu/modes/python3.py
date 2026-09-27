@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import sys
 import os
 import logging
@@ -27,7 +28,6 @@ from ..virtual_environment import venv
 from qtconsole.manager import QtKernelManager
 from qtconsole.client import QtKernelClient
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
-
 
 logger = logging.getLogger(__name__)
 

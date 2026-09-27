@@ -134,7 +134,9 @@ class Process(QObject):
         for k, v in envvars.items():
             environment.insert(k, v)
         self.process.setProcessEnvironment(environment)
-        self.process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        self.process.setProcessChannelMode(
+            QProcess.ProcessChannelMode.MergedChannels
+        )
 
     def run_blocking(self, command, args, wait_for_s=30.0, **envvars):
         """Run `command` with `args` via QProcess, passing `envvars` as
@@ -320,7 +322,7 @@ class Pip(object):
                 packages,
                 wait_for_s=self.timeout,
                 slots=slots,
-                **kwargs
+                **kwargs,
             )
         else:
             return self.run(
@@ -328,7 +330,7 @@ class Pip(object):
                 *packages,
                 wait_for_s=self.timeout,
                 slots=slots,
-                **kwargs
+                **kwargs,
             )
 
     def uninstall(self, packages, slots=Process.Slots(), **kwargs):
@@ -348,7 +350,7 @@ class Pip(object):
                 wait_for_s=self.timeout,
                 slots=slots,
                 yes=True,
-                **kwargs
+                **kwargs,
             )
         else:
             return self.run(
@@ -357,7 +359,7 @@ class Pip(object):
                 wait_for_s=self.timeout,
                 slots=slots,
                 yes=True,
-                **kwargs
+                **kwargs,
             )
 
     def version(self):
@@ -496,7 +498,7 @@ class VirtualEnvironment(object):
             list(args),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            **kwargs
+            **kwargs,
         )
         stdout_output = process.stdout.decode(ENCODING, errors="replace")
         stderr_output = process.stderr.decode(ENCODING, errors="replace")

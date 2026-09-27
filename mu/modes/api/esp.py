@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
 ESP_APIS = [
     # RNG
     _("random.getrandbits(n) \nReturn an integer with n random bits."),
@@ -90,12 +89,10 @@ If the argument is supplied, the method sets the output to the given value."""
     _("machine.Pin.IN"),
     _("machine.Pin.PULL_UP"),
     _("machine.Pin.PULL_DOWN"),
-    _(
-        """machine.ADC(pin)
+    _("""machine.ADC(pin)
 Create an ADC object associated with the given pin. 
 This allows you to then read analog values on that pin.
-machine.ADC(machine.Pin(39))"""
-    ),
+machine.ADC(machine.Pin(39))"""),
     _(
         "machine.ADC.read() \nRead the analog pin value.\n\nadc = machine.ADC(machine.Pin(39))\nvalue = adc.read()"
     ),
@@ -112,90 +109,69 @@ machine.ADC(machine.Pin(39))"""
     _(
         "time.ticks_diff() \nCompute difference between values ticks values obtained from time.ticks_ms() and time.ticks_us()."
     ),
-    _(
-        """time.time() 
+    _("""time.time() 
 Returns the number of seconds, as an integer, since the Epoch, 
 assuming that underlying RTC is set and maintained. If an
 RTC is not set, this function returns number of seconds since a
-port-specific reference point in time (usually since boot or reset)."""
-    ),
+port-specific reference point in time (usually since boot or reset)."""),
     # Network module
-    _(
-        """network.WLAN(interface_id) \n
+    _("""network.WLAN(interface_id) \n
 Create a WLAN interface object. Supported interfaces are:
 network.STA_IF (station aka client, connects to upstream WiFi access points) and 
-network.AP_IF (access point mode, allows other WiFi clients to connect)."""
-    ),
+network.AP_IF (access point mode, allows other WiFi clients to connect)."""),
     _("network.WLAN.STA_IF"),
     _("network.WLAN.AP_IF"),
-    _(
-        """network.WLAN.active([ is_active ])
+    _("""network.WLAN.active([ is_active ])
 Activates or deactivates the network interface when given boolean
-argument. When argument is omitted the function returns the current state."""
-    ),
-    _(
-        """network.WLAN.connect(ssid, password)
-Connect to the specified wireless network using the specified password."""
-    ),
+argument. When argument is omitted the function returns the current state."""),
+    _("""network.WLAN.connect(ssid, password)
+Connect to the specified wireless network using the specified password."""),
     _(
         "network.WLAN.disconnect() \nDisconnect from the currently connected wireless network."
     ),
-    _(
-        """network.WLAN.scan()
+    _("""network.WLAN.scan()
 Scan for the available wireless networks. Scanning is only possible on
 STA interface. Returns list of tuples with the information about WiFi
 access points:
-   (ssid, bssid, channel, RSSI, authmode, hidden)"""
-    ),
-    _(
-        """network.WLAN.status()
+   (ssid, bssid, channel, RSSI, authmode, hidden)"""),
+    _("""network.WLAN.status()
 Return the current status of the wireless connection. Possible values:
  - STAT_IDLE (no connection and no activity)
  - STAT_CONNECTING (connecting in progress)
  - STAT_WRONG_PASSWORD (failed due to incorrect password),
  - STAT_NO_AP_FOUND (failed because no access point replied),
  - STAT_CONNECT_FAIL (failed due to other problems),
- - STAT_GOT_IP (connection successful)"""
-    ),
-    _(
-        """network.WLAN.isconnected()
+ - STAT_GOT_IP (connection successful)"""),
+    _("""network.WLAN.isconnected()
 In case of STA mode, returns True if connected to a WiFi access point
 and has a valid IP address. In AP mode returns True when a station is
-connected. Returns False otherwise."""
-    ),
-    _(
-        """network.WLAN.ifconfig([ (ip, subnet, gateway, dns) ]) 
+connected. Returns False otherwise."""),
+    _("""network.WLAN.ifconfig([ (ip, subnet, gateway, dns) ]) 
 Get/set IP-level network interface parameters: IP address, subnet
 mask, gateway and DNS server. When called with no arguments, this
 method returns a 4-tuple with the above information. To set the above
 values, pass a 4-tuple with the required information. For example:
 
 nic = network.WLAN(network.WLAN.AP_IF)
-nic.ifconfig(('192.168.0.4', '255.255.255.0', '192.168.0.1', '8.8.8.8'))"""
-    ),
+nic.ifconfig(('192.168.0.4', '255.255.255.0', '192.168.0.1', '8.8.8.8'))"""),
     # urequests module
-    _(
-        """urequests.get(url, headers={})
+    _("""urequests.get(url, headers={})
 Send HTTP GET request to the given URL. 
 An optional dictionary of HTTP headers can be provided.
-Returns a urequests.Response-object"""
-    ),
-    _(
-        """urequests.post(url, data=None, json=None, headers={}) 
+Returns a urequests.Response-object"""),
+    _("""urequests.post(url, data=None, json=None, headers={}) 
 Send HTTP POST request to the given URL. Returns a
 urequests.Response-object.
  - data (optional): bytes to send in the body of the request.
  - json (optional): JSON data to send in the body of the Request.
- - headers (optional): An optional dictionary of HTTP headers."""
-    ),
+ - headers (optional): An optional dictionary of HTTP headers."""),
     _("urequests.Response() \n Object returned by "),
     _("urequests.Response.text \n String representation of response "),
     _(
         "urequests.Response.json() \n Convert Response from JSON to Python dictionary."
     ),
     # NeoPixel module
-    _(
-        """neopixel.NeoPixel(pin, n) 
+    _("""neopixel.NeoPixel(pin, n) 
 
 Create a list representing a strip of 'n' neopixels controlled from
 the specified pin (e.g. machine.Pin(0)). Use the resulting object to
@@ -204,8 +180,7 @@ are given RGB (red, green, blue) values between 0-255 as a tuple. For
 example, (255, 255, 255) is white:
 
 np = neopixel.NeoPixel(machine.Pin(0), 8)\nnp[0] = (255, 0, 128)
-np.write()"""
-    ),
+np.write()"""),
     _(
         "neopixel.NeoPixel.write() \nShow the pixels. Must be called for any updates to become visible."
     ),

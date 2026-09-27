@@ -19,6 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import os
@@ -109,7 +110,9 @@ class AnimatedSplash(QSplashScreen):
         Draw text into splash screen.
         """
         if text:
-            self.showMessage(text, Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
+            self.showMessage(
+                text, Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft
+            )
 
     def failed(self, text):
         """
