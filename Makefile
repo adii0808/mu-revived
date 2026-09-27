@@ -70,7 +70,7 @@ check: clean black flake8 coverage
 
 dist: check
 	@echo "\nChecks pass, good to package..."
-	python setup.py sdist bdist_wheel
+	python -m build
 
 publish-test: dist
 	@echo "\nPackaging complete... Uploading to PyPi..."
