@@ -163,7 +163,6 @@ explain this process more fully
 
 Use the ``make`` command to build your own installers::
 
-    $ make win32
     $ make win64
 
 This will clean the repository before running the ``win_installer.py`` command

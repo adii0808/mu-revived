@@ -7,7 +7,7 @@ command::
   git clone https://github.com/mu-editor/mu.git
 
 **Mu does not and never will use or support Python 2**. You should use Python
-3.5 or above.
+3.10 or above (tested up to 3.14).
 
 Windows, OSX, Linux
 +++++++++++++++++++
@@ -31,7 +31,7 @@ into your virtualenv with::
     * ``[tests]`` specifies the testing dependencies, needed by ``make test``.
     * ``[docs]`` specifies the doc building dependencies, needed by ``make docs``.
     * ``[i18n]`` specifies the translation dependencies, needed by ``make translate_*``.
-    * ``[package]`` specifies the packaging dependencies needed by ``make win32``,
+    * ``[package]`` specifies the packaging dependencies needed by ``make win64``,
       ``make win64``, ``make macos``, or ``make dist``.
 
     Additionally, the following extras are defined:
@@ -84,33 +84,12 @@ Yet another one is typing::
   mu-editor
 
 
-Running Development Mu on Newer MacBook Machines
-++++++++++++
+Apple Silicon Macs
+++++++++++++++++++
 
-If you are working on a newer Apple computers using ARM architecture, an error regarding PyQt may occur due to system incompatibility.
-
-In this case, switch to the pyqt6 branch and make a few changes to the setup.py file before installing the dependencies and run Mu again locally.
-
-In the setup.py file on the pyqt6 branch, you'll find the following lines::
-  
-  "PyQt6==6.3.1"
-  + ';"arm" not in platform_machine and "aarch" not in platform_machine',
-  "PyQt6-QScintilla==2.13.3"
-  + ';"arm" not in platform_machine and "aarch" not in platform_machine',
-  "PyQt6-Charts==6.3.1"
-  + ';"arm" not in platform_machine and "aarch" not in platform_machine',
-
-Remove the lines for Raspberry Pi and leave only the following lines:
-
-  "PyQt6==6.3.1",
-  "PyQt6-QScintilla==2.13.3",
-  "PyQt6-Charts==6.3.1",
-
-Once the changes are saved, install the dependencies and Mu should be up and running.
-
-Since this workaround is only for newer Mac users, when you are committing your changes, be careful to not commit it. 
-
-And when you are making pull request, merge it to main or master instead of pyqt6. 
+No special steps are needed: Mu uses Qt 6 (PyQt6), which publishes native
+arm64 wheels for macOS 12 and newer, so ``pip install -e ".[dev]"`` works
+as on any other platform.
 
 
 Raspberry Pi
@@ -119,21 +98,22 @@ Raspberry Pi
 If you are working on a Raspberry Pi there are additional steps to create a
 working development environment:
 
-1. Install required dependencies from Raspbian repository::
+PyQt6 wheels on PyPI need a recent system (glibc 2.39+, e.g. Ubuntu 24.04 or
+Debian 13 "trixie"), so on Raspberry Pi OS Bookworm and on 32-bit Pis use the
+Qt 6 packages from the OS instead.
 
-    sudo apt-get install python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtserialport python3-pyqt5.qtsvg python3-dev python3-gpiozero python3-pgzero libxmlsec1-dev libxml2 libxml2-dev
+1. Install the Qt 6 bindings from the Raspberry Pi OS repository::
 
-2. If you are running Raspbian Buster or newer you can also install this
-   optional package::
-   
-    sudo apt-get install python3-pyqt5.qtchart
+    sudo apt-get install python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtserialport python3-pyqt6.qtsvg python3-pyqt6.qtcharts python3-dev python3-venv
+
+2. (Nothing to do: the plotter's ``python3-pyqt6.qtcharts`` was installed
+   in step 1.)
 
 3. Create a virtualenv that uses Python 3 and allows the virtualenv access
    to the packages installed on your system via the ``--system-site-packages``
    flag::
 
-    sudo pip3 install virtualenv
-    virtualenv -p /usr/bin/python3 --system-site-packages ~/mu-venv
+    python3 -m venv --system-site-packages ~/mu-venv
 
 4. Activate the virtual environment ::
 
@@ -147,7 +127,12 @@ working development environment:
    Raspberry Pi with::
 
     (mu-venv) $ cd ~/mu-source
-    (mu-venv) $ pip install -e ".[dev]"
+    (mu-venv) $ python utils/non_qt_requirements.py dev > requirements-pi.txt
+    (mu-venv) $ pip install -r requirements-pi.txt
+    (mu-venv) $ pip install --no-deps -e .
+
+   This installs everything except PyQt6, so pip keeps using the system Qt 6
+   packages from step 1.
 
 7. Run mu::
 
@@ -194,7 +179,6 @@ with development. Typing ``make`` on its own will list the options thus::
     make docs - run sphinx to create project documentation.
     make translate - create a messages.pot file for translations.
     make translateall - as with translate but for all API strings.
-    make win32 - create a 32bit Windows installer for Mu.
     make win64 - create a 64bit Windows installer for Mu.
     make macos - create a macOS native application for Mu.
     make video - create an mp4 video representing code commits.

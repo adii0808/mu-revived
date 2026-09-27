@@ -12,7 +12,7 @@ found the latest versions of some of these packages are not always backwards
 compatible with each other.
 
 * Install the 32bit version of Python 3.4 from the `official website <https://www.python.org/downloads/>`_.
-* Install the PyQt5 binary package from `riverbankcomputing <https://riverbankcomputing.com/software/pyqt/download>`_ (specifically, `this one <https://riverbankcomputing.com/software/pyqt/download5>`_).
+* Install the PyQt6 binary package from `riverbankcomputing <https://riverbankcomputing.com/software/pyqt/download>`_ (specifically, `this one <https://riverbankcomputing.com/software/pyqt/download>`_).
 * Install PyInstaller using pip or pip3 (includes pypiwin32)::
 
     $ pip install pyinstaller==3.1.1
@@ -30,9 +30,9 @@ Assuming you have the `Homebrew <http://brew.sh/>`_ package manager installed:
     $ brew update
     $ brew install python3
 
-* Install the PyQt5 binary package::
+* Install the PyQt6 binary package::
 
-    $ pip3 install PyQt5
+    $ pip3 install PyQt6
 
 * Install the QScintilla2 package using the formula in the `extras` directory::
 
@@ -52,9 +52,9 @@ Assuming you are running a Linux distribution with apt.
     $ sudo apt-get update
     $ sudo apt-get install python3
 
-* Install PyQt5::
+* Install PyQt6::
 
-    $ sudo apt-get install python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtserialport
+    $ sudo apt-get install python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtserialport
 
 * Install PyInstaller::
 

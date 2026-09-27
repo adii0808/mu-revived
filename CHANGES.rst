@@ -1,6 +1,29 @@
 Release History
 ---------------
 
+2.0.0 (unreleased)
+==================
+
+Community revival of Mu for current Python and Qt.
+
+* **Python 3.10 – 3.14** supported (was 3.5 – 3.8). Packaging moved from
+  ``setup.py`` to ``pyproject.toml``.
+* **Qt 6** via PyQt6, PyQt6-QScintilla and PyQt6-Charts (was PyQt5 5.13).
+  Native builds for Apple Silicon and Windows on ARM become possible.
+* The Python 3 REPL works with current Jupyter (qtconsole 5, jupyter-client
+  8, ipykernel 6.29+, IPython 9).
+* Pygame Zero mode uses **pygame-ce**, the maintained, drop-in compatible
+  community edition of pygame (upstream pygame has no Python 3.13+ builds).
+  Web mode uses Flask 3.
+* Fixed a crash in the Snek REPL when typing without modifier keys and a
+  crash when showing code-check annotations, both exposed by PyQt6's
+  stricter types.
+* Installers bundle a matching python-build-standalone runtime; 32-bit
+  Windows installers are dropped (Qt 6 has no 32-bit Windows builds). The
+  macOS minimum is now macOS 12.
+* Raspberry Pi OS Bookworm / 32-bit Pis: use the OS's ``python3-pyqt6``
+  packages (see the developer setup docs).
+
 1.2.2
 =====
 

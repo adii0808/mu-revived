@@ -1,7 +1,9 @@
 Mu - A Simple Python Code Editor 
 ================================
 
-**THIS PROJECT IS NO LONGER MAINTAINED**
+**Community revival:** this fork brings Mu up to date with **Python 3.10 –
+3.14** and **Qt 6 (PyQt6)**. The original project was marked as no longer
+maintained in August 2025. See ``CHANGES.rst`` for what changed.
 
 .. image:: https://mu.readthedocs.io/en/latest/_images/logo.png
 
@@ -13,6 +15,10 @@ Mu is a modal editor with modes for many different ways to use Python to create
 cool and interesting things.
 
 Mu is written in Python and works on Windows, macOS, Linux and Raspberry Pi.
+To run it from source::
+
+    pip install -e .
+    mu-editor
 The project's public facing website is
 `https://codewith.mu/ <https://codewith.mu/>`_. We celebrate the work done by
 users of mu at `https://madewith.mu/ <https://madewith.mu/>`_.

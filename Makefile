@@ -18,7 +18,6 @@ all:
 	@echo "make translate_begin LANG=xx_XX - create/update a mu.po file for translation."
 	@echo "make translate_done LANG=xx_XX - compile translation strings in mu.po to mu.mo file."
 	@echo "make translate_test LANG=xx_XX - run translate_done and launch Mu in the given LANG."
-	@echo "make win32 - create a 32bit Windows installer for Mu."
 	@echo "make win64 - create a 64bit Windows installer for Mu."
 	@echo "make macos - create a macOS native application for Mu."
 	@echo "make video - create an mp4 video representing code commits.\n"
@@ -95,10 +94,6 @@ translate_done:
 translate_test:
 	@python make.py translate_test LANG=$(LANG)
 
-win32: check
-	@echo "\nBuilding 32bit Windows MSI installer."
-	python make.py win32
-
 win64: check
 	@echo "\nBuilding 64bit Windows MSI installer."
 	python make.py win64
@@ -112,9 +107,11 @@ macos: check
 	# 1. Not really needed.
 	# 2. Previously active venv would be "gone" on venv-pup deactivation.
 	# Installing pup from a fork with the --pip-platform flag proof of concept
-	# and using it to install wheels for the `macosx_10_12_x86_64` platform
+	# and using it to install wheels for macOS 12+ (the Qt 6 minimum) on the
+	# build machine's architecture (arm64 or x86_64). pup's built-in Python
+	# runtimes stop at 3.10, so make.py finds a matching modern one.
 	./venv-pup/bin/pip install git+https://github.com/carlosperate/pup.git@pip-platform
-	./venv-pup/bin/pup package --launch-module=mu --nice-name="Mu Editor" --icon-path=./package/icons/mac_icon.icns --license-path=./LICENSE --pip-platform=macosx_10_12_x86_64 .
+	PUP_PBS_URL=$$(python make.py pbs_url) ./venv-pup/bin/pup package --launch-module=mu --nice-name="Mu Editor" --icon-path=./package/icons/mac_icon.icns --license-path=./LICENSE --pip-platform=macosx_12_0_$$(uname -m) .
 	rm -r venv-pup
 	ls -la ./build/pup/
 	ls -la ./dist/
@@ -128,7 +125,7 @@ linux: check
 	# 1. Not really needed.
 	# 2. Previously active venv would be "gone" on venv-pup deactivation.
 	./venv-pup/bin/pip install pup
-	./venv-pup/bin/pup package --launch-module=mu --nice-name="Mu Editor" --icon-path=./mu/resources/images/icon.png --license-path=./LICENSE .
+	PUP_PBS_URL=$$(python make.py pbs_url) APPIMAGE_EXTRACT_AND_RUN=1 ./venv-pup/bin/pup package --launch-module=mu --nice-name="Mu Editor" --icon-path=./mu/resources/images/icon.png --license-path=./LICENSE .
 	rm -r venv-pup
 	ls -la ./build/pup/
 	ls -la ./dist/

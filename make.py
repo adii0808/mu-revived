@@ -390,25 +390,106 @@ def publish_live():
     ).returncode
 
 
-_PUP_PBS_URLs = {
-    32: "https://github.com/indygreg/python-build-standalone/releases/download/20200822/cpython-3.7.9-i686-pc-windows-msvc-shared-pgo-20200823T0159.tar.zst",  # noqa: E501
-    64: None,
+# pup (the packager used for the installers) only knows python-build-standalone
+# (PBS) runtimes up to Python 3.10, so we find a matching modern PBS "full"
+# archive ourselves and pass it to pup via the PUP_PBS_URL env var.
+_PBS_RELEASES_API = (
+    "https://api.github.com/repos/astral-sh/python-build-standalone/releases"
+)
+_PBS_TRIPLES = {
+    ("win32", "AMD64"): "x86_64-pc-windows-msvc",
+    ("win32", "ARM64"): "aarch64-pc-windows-msvc",
+    ("darwin", "x86_64"): "x86_64-apple-darwin",
+    ("darwin", "arm64"): "aarch64-apple-darwin",
+    ("linux", "x86_64"): "x86_64-unknown-linux-gnu",
+    ("linux", "aarch64"): "aarch64-unknown-linux-gnu",
 }
+
+
+def _pbs_url(python_version=None, triple=None, pages=5):
+    """
+    Return the URL of a python-build-standalone "full" archive for the given
+    Python version (default: the running interpreter's exact version) and
+    target triple (default: the current platform). Searches the most recent
+    releases via the GitHub API and prefers PGO+LTO optimised builds.
+    """
+    import json
+    import platform
+    import urllib.request
+
+    if python_version is None:
+        python_version = "{}.{}.{}".format(*sys.version_info[:3])
+    if triple is None:
+        key = (sys.platform, platform.machine())
+        try:
+            triple = _PBS_TRIPLES[key]
+        except KeyError:
+            raise RuntimeError(
+                "No python-build-standalone target for %s" % (key,)
+            )
+    prefix = "cpython-{}+".format(python_version)
+    preferred = (
+        "-pgo+lto-full.tar.zst",
+        "-pgo-full.tar.zst",
+        "-lto-full.tar.zst",
+    )
+    for page in range(1, pages + 1):
+        url = "{}?per_page=20&page={}".format(_PBS_RELEASES_API, page)
+        request = urllib.request.Request(
+            url, headers={"Accept": "application/vnd.github+json"}
+        )
+        token = os.environ.get("GITHUB_TOKEN")
+        if token:
+            request.add_header("Authorization", "Bearer " + token)
+        with urllib.request.urlopen(request, timeout=30) as response:
+            releases = json.load(response)
+        for release in releases:
+            names = {
+                asset["name"]: asset["browser_download_url"]
+                for asset in release.get("assets", [])
+            }
+            for suffix in preferred:
+                for name, download_url in names.items():
+                    if (
+                        name.startswith(prefix)
+                        and "-{}-".format(triple) in name
+                        and name.endswith(suffix)
+                        and "freethreaded" not in name
+                        and "debug" not in name
+                    ):
+                        return download_url
+    raise RuntimeError(
+        "No python-build-standalone build of Python {} for {}".format(
+            python_version, triple
+        )
+    )
+
+
+def _set_pup_pbs_url():
+    """Point pup at a python-build-standalone runtime matching this Python."""
+    if "PUP_PBS_URL" not in os.environ:
+        os.environ["PUP_PBS_URL"] = _pbs_url()
+    print("Using Python runtime:", os.environ["PUP_PBS_URL"])
+
+
+@export
+def pbs_url():
+    """Print the python-build-standalone runtime URL used for installers"""
+    print(_pbs_url())
+    return 0
 
 
 def _build_windows_msi(bitness=64):
     """Build Windows MSI installer"""
-    try:
-        pup_pbs_url = _PUP_PBS_URLs[bitness]
-    except KeyError:
-        raise ValueError("bitness") from None
+    if bitness != 64:
+        # Qt6 / PyQt6 have no 32-bit Windows builds.
+        raise ValueError("Only 64-bit Windows installers are supported")
     if check() != 0:
         raise RuntimeError("Check failed")
     print("Fetching wheels")
     subprocess.check_call([sys.executable, "-m", "mu.wheels", "--package"])
     print("Building {}-bit Windows installer".format(bitness))
-    if pup_pbs_url:
-        os.environ["PUP_PBS_URL"] = pup_pbs_url
+    _set_pup_pbs_url()
     cmd_sequence = (
         [sys.executable, "-m", "virtualenv", "venv-pup"],
         ["./venv-pup/Scripts/pip.exe", "install", "pup"],
@@ -429,12 +510,6 @@ def _build_windows_msi(bitness=64):
             subprocess.check_call(cmd)
     finally:
         shutil.rmtree("./venv-pup", ignore_errors=True)
-
-
-@export
-def win32():
-    """Build 32-bit Windows installer"""
-    _build_windows_msi(bitness=32)
 
 
 @export
